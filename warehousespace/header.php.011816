@@ -1,0 +1,165 @@
+<?
+session_start();
+
+if (isset($_GET['utm_source'])) $_SESSION["utm_source"] = $_GET['utm_source'];
+if (isset($_GET['utm_campaign'])) $_SESSION["utm_campaign"] = $_GET['utm_campaign'];
+?>
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<?
+$title = 'US Warehouse Space for Rent - 1000s of Listings';
+$meta_desc = 'View available warehouse space for rent throughout the United States. Browse 1000s of listings to find the perfect space for you. Sizes from 5k to 100k sqft.';
+
+$curr_url = $_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"];	
+
+if (isset($_GET["q"])) $q = explode(",", $_GET["q"]);
+
+if (sizeof($q) == 1 ) $title = $q[0].' Warehouse Space for Rent - ';
+
+if (isset($_GET["id"]))
+{
+	if (is_numeric(trim($_GET["id"]))) $where_clause = "ListingID = ".trim($_GET["id"]);
+	else 
+	{ 
+		$exp_str = explode(",",trim($_GET["id"]));
+		if (count($exp_str) > 1)
+		{
+			$statecode = trim($exp_str[0]);
+			$cityname = trim($exp_str[1]);
+
+			$title = $cityname.' Warehouse Space for Rent ';
+
+			$where_clause = ' trim(StreetAddress)= "'. trim($exp_str[0]).'"';
+			$where_clause .= ' and trim(CityName)= "'.trim($exp_str[1]).'"';
+		}
+		else $where_clause = ' trim(StreetAddress)= "'.trim($_GET["id"]).'" ';
+	}
+
+	$search_sql_stmt = 'select * from warehouse_listing where '.$where_clause.';';
+	try {
+		$mysqli = mysqli_connect("localhost", "warehous_root", "7Pt2iFKOy8WYeCwOh", "warehous_main");
+		$result = $mysqli->query($search_sql_stmt);
+		$row = mysqli_fetch_array($result);
+		//var_dump($search_sql_stmt);
+		$title = $row['CityName'].' Warehouse Space for Rent - ' ;//.' '.$row['StateProvCode'];
+	
+		$latitude = $row['Latitude'];
+		$longitude = $row['Longitude'];
+	}
+	catch(exception $e) {var_dump($e);}
+}
+
+$ref_file = basename($_SERVER["SCRIPT_FILENAME"], '.php');
+
+if ($ref_file == 'property_details'){ //indivudal listing
+	$title .= $row['StreetAddress'];
+	$meta_desc = $row['StreetAddress']." Offers ".($row['SpaceAvailableTotal'] ? number_format(preg_replace('/\D/', '', $row['SpaceAvailableTotal']))." sq. ft. of " : "")."warehouse space for rent in ".$row['CityName'].". View this property and all other warehouses for lease in ".$row['CityName'];
+}
+elseif ($ref_file == 'all_cities'){
+	$title = 'Cities Covered';
+	$meta_desc = "Find great deals on industrial space for lease and warehouses for rent.";
+}
+elseif ($ref_file == 'searchresults'){
+	$title .= 'View All Listings';
+	$meta_desc = "View all available listings for warehouse space in ".$q[0].". Find great deals on warehouses for rent and get a free property report for any listing";
+}
+elseif ($ref_file == 'about'){
+	$title = 'About WarehouseSpaces.com - View 1000s of Warehouse Listings';
+	$meta_desc = "Learn more about WarehouseSpaces.com. We're one of the nations largest warehouse listing sites with warehouses for rent and sale.";
+}
+elseif ($ref_file == 'contact'){
+	$title = 'Contact Us - WarehouseSpaces.com';
+	$meta_desc = "Contact page for WarehouseSpaces.com. We're one of the nations largest warehouse listing sites.";
+}
+?>
+        <title><?=$title?></title>
+        <meta name="description" content="<?= $meta_desc?>" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/css/icomoon-social.css">
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700,600,800' rel='stylesheet' type='text/css'>
+
+        <link rel="stylesheet" href="/css/leaflet.css" />
+		<!--[if lte IE 8]>
+		    <link rel="stylesheet" href="/css/leaflet.ie.css" />
+		<![endif]-->
+		<link rel="stylesheet" href="/css/main.css">
+		<link href="/css/lwhcustom.css" rel="stylesheet">
+
+        <script src="/js/modernizr-2.6.2-respond-1.1.0.min.js"></script>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+        <script src="/js/jquery-ui-1.9.1.custom.min.js" ></script>
+        <script src="/js/datatables/js/jquery.dataTables.js"></script>
+		<script src="/js/datatables/js/fnAddTr.js"></script>
+        <script>window.jQuery || document.write('<script src="/js/jquery-1.9.1.min.js"><\/script>')</script>
+        <script src="/js/jquery.validate.min.js"></script>
+        <script src="/js/bootstrap.js"></script>
+        <script src="/js/jquery.validate.bootstrap.js"></script>
+        <script src="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.js"></script>
+        <script src="/js/jquery.fitvids.js"></script>
+        <script src="/js/jquery.sequence-min.js"></script>
+        <script src="/js/jquery.bxslider.js"></script>
+        <script src="/js/main-menu.js"></script>
+        <script src="/js/template.js"></script>
+        <script src="/js/bootstrap3-typeahead.js"></script>
+        
+        <script>
+		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+		ga('create', 'UA-51049736-1', 'warehousespaces.com');
+		ga('send', 'pageview');
+        </script>
+  </head>
+  <body>
+<?
+error_reporting(1);
+?>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+        <![endif]-->
+        
+
+        <!-- Navigation & Logo-->
+        <div class="mainmenu-wrapper">
+	        <div class="container">
+	        	<div class="menuextras">
+					<div class="extras">
+						<ul>
+							<li>
+							    <a href="http://www.linkedin.com/company/synergy-real-estate-group-corporate-advisory" title="LinkedIn"><img src="http://warehousespaces.com/images/linkedin_32.png" width="24" alt="LinkedIn"></a>
+							</li>
+							<li>	
+								<a href="https://www.facebook.com/synergyreg" title="Join Us!"><img src="http://warehousespaces.com/images/facebook_32.png" width="24" alt="Facebook"></a>
+							</li>
+							<li>
+							    <a href="https://twitter.com/SynergyREG" title="Follow Us!"><img src="http://warehousespaces.com/images/twitter_32.png" width="24" alt="Twitter"></a>
+							</li>
+							<li>
+							    <a href="http://blog.synreg.com"><img src="http://warehousespaces.com/images/rss_32.png" width="24" alt="RSS Feed"></a>
+							</li>
+			        	</ul>
+					</div>
+		        </div>
+		        <nav id="mainmenu" class="mainmenu">
+					<ul>
+						<li class="logo-wrapper"><a href="/"><h3>WAREHOUSESPACES.COM</h3></a> <!--<h4>Find Warehouse Space For Lease and For Sale</h4>!--></li>
+						<li>
+							<a href="/about.php">ABOUT&nbsp;US</a>
+						</li>
+						<li>
+						    <a href="/contact.php">CONTACT&nbsp;BROKER</a>
+						</li>
+					</ul>
+				</nav>
+			</div>
+		</div>

@@ -1,0 +1,26 @@
+Options +FollowSymlinks
+
+RewriteEngine on
+
+DirectoryIndex index.php
+
+RewriteCond %{HTTP_HOST} ^www\.warehousespaces\.com [NC]
+RewriteRule ^(.*)$ http://warehousespaces.com/$1 [L,R=301]
+RewriteRule ^index\.php$ http://warehousespaces.com [R=301,L]
+
+RewriteRule ^warehouse-for-rent/United-States/AZ/Phoenix\saz$ /warehouse-for-rent/United-States/AZ/Phoenix [R=301]
+RewriteRule ^warehouse-for-rent/United-States/IL/Mt\.(\sProspect)$ /warehouse-for-rent/United-States/IL/Mount$1 [R=301]
+RewriteRule ^warehouse-for-rent/United-States/CA/City(\s)Industry$ /warehouse-for-rent/United-States/CA/City$1of$1Industry [R=301]
+
+RewriteRule ^warehouse-for-rent/United-States/([A-Za-z0-9-]+)/([A-Za-z0-9-\.\,\ ]+)/([0-9]+)/?$ property_details.php?id=$3
+
+RewriteRule ^warehouse-for-rent/United-States/([A-Za-z0-9-\.\,\ ]+)/?$ searchresults.php?q=$1
+RewriteRule ^warehouse-for-rent/United-States/([A-Za-z0-9-\.\,\ ]+)/page(\-?[0-9]+)/?$ searchresults.php?q=$1&page=$2
+RewriteRule ^warehouse-for-rent/United-States/([A-Za-z0-9-]+)/([A-Za-z0-9-\.\,\ ]+)/?$ searchresults.php?q=$2&state=$1&%{QUERY_STRING}
+RewriteRule ^warehouse-for-rent/United-States/([A-Za-z0-9-]+)/([A-Za-z0-9-\.\,\ ]+)/page(\-?[0-9]+)/?$ searchresults.php?q=$2&state=$1&page=$3&%{QUERY_STRING}
+
+RewriteRule ^site_policy.php /terms.php [R=301]
+
+#RewriteCond %{REQUEST_FILENAME} !-f
+#RewriteCond %{REQUEST_FILENAME} !-d
+#RewriteRule ^(.*) index.php

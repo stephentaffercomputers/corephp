@@ -1,0 +1,19 @@
+	    <!-- Footer -->
+	    <div class="section">
+	    	<div class="container">
+	    		<div class="one_half_first text-center"><a href="/all_cities.php">Cities Covered</a></div>
+	    		<div class="one_half_last text-center"><a href="/all_states.php">States Covered</a></div>
+	    		<div style="clear: both;"></div>
+		    </div>
+	    </div>
+	    <div class="footer">
+	    	<div class="container">
+		    	<div class="row">
+		    		<div class="col-md-12">
+		    			<div class="footer-copyright"><a href="http://warehousespaces.com/terms.php">Terms & Conditions</a> | <a href="http://warehousespaces.com/privacy.php">Privacy Policy</a> | <a href="http://warehousespaces.com/site_policy.php">Site Policy & Listing Service Use</a> | <a href="http://warehousespaces.com/disclaimer.php">Listings Disclaimer</a> | <a href="http://warehousespaces.com/add_listing.php">Submit Listing</a><br />&copy; <? echo date("Y"); ?> WarehouseSpaces.com - All rights reserved.</div>
+		    		</div>
+		    	</div>
+		    </div>
+	    </div>
+    </body>
+</html>	    		    

@@ -1,0 +1,7 @@
+# Search engines can see it 
+User-agent: *
+Disallow:
+ 
+ 
+
+Sitemap: https://warehousespaces.com/sitemap.xml
