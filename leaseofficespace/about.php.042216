@@ -1,0 +1,82 @@
+<?php include 'header.php'; ?>
+		<div class="section section-breadcrumbs">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-12">
+						<h1>About Us</h1>
+					</div>
+				</div>
+			</div>
+		</div>
+        
+        <div class="section">
+	        <div class="container">
+				<div class="row service-wrapper-row">
+        			<div class="col-sm-4">
+        				<div class="service-image">
+        					<img src="http://leaseofficespace.net/images/about1.png" alt="Find Space">
+        				</div>
+        			</div>
+        			<div class="col-sm-8">
+    					<h3>We find you space and negotiate with Landlords</h3>
+    					<p>We are a national firm that specializes in assisting Fortune 500 corporations, medium sized companies and small businesses identify space and negotiate lease transactions.</p>
+    				</div>
+				</div>
+				<div class="row service-wrapper-row">
+        			<div class="col-sm-8">
+    					<h3>We never represent Landlords, only Tenants.<br />100% Tenant Focused.</h3>
+    					<p>We serve our clients best interests by removing the conflict of interest inherent when a listing broker tries to represent both the Tenant and Landlord.</p>
+    				</div>
+        			<div class="col-sm-4">
+        				<div class="service-image">
+        					<img src="http://leaseofficespace.net/images/about2.png" alt="Tenant Focused">
+        				</div>
+        			</div>
+				</div>
+				<div class="row service-wrapper-row">
+        			<div class="col-sm-4">
+        				<div class="service-image">
+        					<img src="http://leaseofficespace.net/images/about3.png" alt="Market knowledge">
+        				</div>
+        			</div>
+        			<div class="col-sm-8">
+    					<h3>We have extensive market knowledge</h3>
+    					<p>Tremendous leverage and clout with Landlords allows us to secure the best lease terms and price on space.</p>
+    				</div>
+				</div>
+				<div class="row service-wrapper-row">
+        			<div class="col-sm-8">
+    					<h3>We are committed to understanding the Market</h3>
+    					<p>Synergy is the largest network of Tenant representatives in the nation. We are made up of principle -level professionals so all work is handled by top negotiaors in the industry.</p>
+    				</div>
+        			<div class="col-sm-4">
+        				<div class="service-image">
+        					<img src="http://leaseofficespace.net/images/about4.png" alt="Understanding the Market">
+        				</div>
+        			</div>
+				</div>
+				<div class="row service-wrapper-row">
+        			<div class="col-sm-4">
+        				<div class="service-image">
+        					<img src="http://leaseofficespace.net/images/about5.png" alt="Client focus">
+        				</div>
+        			</div>
+        			<div class="col-sm-8">
+    					<h3>Our client focus puts you in the driver's seat</h3>
+    					<p>Our team approach saves you time and money. We do the leg work for you in order to find the best space that fits your needs. This allows you to focus on what you do best.</p>
+    				</div>
+				</div>												
+				<div class="row service-wrapper-row">
+        			<div class="col-sm-8">
+    					<h3>Our service is free of charge and our work is Guaranteed</h3>
+    					<p>Listing brokers represent the Landlord's interests and split the  commission with us to represent your interests in the transaction. If we don't meet your expectations we'll give you our fee.</p>
+    				</div>
+        			<div class="col-sm-4">
+        				<div class="service-image">
+        					<img src="http://leaseofficespace.net/images/about6.png" alt="Our service is free">
+        				</div>
+        			</div>
+				</div>
+			</div>
+		</div>		
+<?php include 'footer.php'; ?>

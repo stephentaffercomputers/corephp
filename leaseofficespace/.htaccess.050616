@@ -1,0 +1,30 @@
+Options +FollowSymlinks
+
+RewriteEngine on
+
+DirectoryIndex index.php
+
+RewriteCond %{HTTP_HOST} ^www\.leaseofficespace\.net [NC]
+RewriteRule ^(.*)$ http://leaseofficespace.net/$1 [L,R=301]
+RewriteRule ^index\.php$ http://leaseofficespace.net [R=301,L]
+
+RewriteRule ^offices-for-rent/AZ/Phoenix\saz$ /offices-for-rent/AZ/Phoenix [R=301]
+RewriteRule ^offices-for-rent/FL/Jacksovnilel$ /offices-for-rent/FL/Jacksonville [R=301]
+RewriteRule ^offices-for-rent/FL/Jacskonville$ /offices-for-rent/FL/Jacksonville [R=301]
+RewriteRule ^offices-for-rent/PA/Philadephia$ /offices-for-rent/PA/Philadelphia [R=301]
+RewriteRule ^offices-for-rent/CA/Rancho(\s)Cuamonga$ /offices-for-rent/CA/Rancho$1Cucamonga [R=301]
+RewriteRule ^offices-for-rent/NC/Charltote$ /offices-for-rent/NC/Charlotte [R=301]
+RewriteRule ^offices-for-rent/CA/City(\s)Of(\s)Commerce$ /offices-for-rent/CA/Commerce [R=301]
+RewriteRule ^offices-for-rent/TX/Houston\s\(San\sFelipe\/Voss\sS$ /offices-for-rent/TX/Houston [R=301]
+ 
+RewriteRule ^offices-for-rent/([A-Za-z0-9-\.\,\ ]+)/([A-Za-z0-9-\.\,\ ]+)/(\d\d\d\d[A-Za-z0-9-\.\,\ ]+)/?$ /offices-for-rent/$1/$2 [R=301]
+RewriteRule ^offices-for-rent/([A-Za-z0-9-]+)/([A-Za-z0-9-\.\,\ ]+)/([0-9]+)/?$ property_details.php?id=$3
+
+RewriteRule ^offices-for-rent/([A-Za-z0-9-\.\,\ ]+)/?$ searchresults.php?q=$1
+RewriteRule ^offices-for-rent/([A-Za-z0-9-\.\,\ ]+)/page(\-?[0-9]+)/?$ searchresults.php?q=$1&page=$2
+RewriteRule ^offices-for-rent/([A-Za-z0-9-]+)/([A-Za-z0-9-\.\,\ ]+)/?$ searchresults.php?q=$2&%{QUERY_STRING}
+RewriteRule ^offices-for-rent/([A-Za-z0-9-]+)/([A-Za-z0-9-\.\,\ ]+)/page(\-?[0-9]+)/?$ searchresults.php?q=$2&page=$3&%{QUERY_STRING}
+
+#RewriteCond %{REQUEST_FILENAME} !-f
+#RewriteCond %{REQUEST_FILENAME} !-d
+#RewriteRule ^(.*) index.php
