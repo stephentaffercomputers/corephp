@@ -1,0 +1,3 @@
+@media only screen and (max-width: 768px) {
+.list-group { width:33.33% !important; } 
+}

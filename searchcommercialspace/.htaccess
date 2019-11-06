@@ -1,0 +1,151 @@
+Options +FollowSymlinks
+
+RewriteEngine on
+
+DirectoryIndex index.php
+
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+RewriteCond %{HTTP_HOST} ^www\.searchcommercialspace\.com [NC]
+RewriteRule ^(.*)$ https://searchcommercialspace.com/$1 [L,R=301]
+RewriteCond %{HTTP_HOST} ^mail\.searchcommercialspace\.com [NC]
+RewriteRule ^(.*)$ https://searchcommercialspace.com/$1 [L,R=301]
+RewriteRule ^index\.php$ https://searchcommercialspace.com [R=301,L]
+
+RewriteRule ^commercial-real-estate-listings/United-States/California/([A-Za-z0-9-\.\,\ ]+)/.*/?$ /commercial-real-estate/United-States/CA/$1 [R=301]
+RewriteRule ^commercial-real-estate-listings/United-States/Colorado/([A-Za-z0-9-\.\,\ ]+)/.*/?$ /commercial-real-estate/United-States/CO/$1 [R=301]
+RewriteRule ^commercial-real-estate-listings/United-States/Texas/([A-Za-z0-9-\.\,\ ]+)/.*/?$ /commercial-real-estate/United-States/TX/$1 [R=301]
+RewriteRule ^commercial-real-estate-listings/United-States/Washington/([A-Za-z0-9-\.\,\ ]+)/.*/?$ /commercial-real-estate/United-States/WA/$1 [R=301]
+RewriteRule ^commercial-real-estate-listings/United-States/Georgia/([A-Za-z0-9-\.\,\ ]+)/.*/?$ /commercial-real-estate/United-States/GA/$1 [R=301]
+RewriteRule ^commercial-real-estate-listings/United-States/New\sYork/([A-Za-z0-9-\.\,\ ]+)/.*/?$ /commercial-real-estate/United-States/NY/$1 [R=301]
+RewriteRule ^commercial-real-estate-listings/United-States/([A-Za-z0-9-]+)/([A-Za-z0-9-\.\,\ ]+)/.*/?$ /commercial-real-estate/United-States/$1/$2 [R=301]
+
+RewriteRule ^commercial-space-for-rent/United-States/(.*)$ /commercial-real-estate/United-States/$1 [R=301]
+
+RewriteRule ^commercial-real-estate/United-States/([A-Za-z0-9-]+)/([A-Za-z0-9-\.\,\ ]+)/([0-9]+)/?$ property_details.php?id=$3
+
+RewriteRule ^commercial-real-estate/United-States/([A-Za-z0-9-\.\,\ ]+)/?$ searchresults.php?q=$1&%{QUERY_STRING}
+RewriteRule ^commercial-real-estatet/United-States/([A-Za-z0-9-\.\,\ ]+)/page(\-?[0-9]+)/?$ searchresults.php?q=$1&page=$2&%{QUERY_STRING}
+RewriteRule ^commercial-real-estate/United-States/([A-Za-z0-9-]+)/([A-Za-z0-9-\.\,\ ]+)/?$ searchresults.php?q=$2,$1&%{QUERY_STRING}
+RewriteRule ^commercial-real-estate/United-States/([A-Za-z0-9-]+)/([A-Za-z0-9-\.\,\ ]+)/page(\-?[0-9]+)/?$ searchresults.php?q=$2,$1&page=$3&%{QUERY_STRING}
+
+
+RewriteRule ^warehouse-for-rent/United-States/([A-Za-z0-9-]+)/([A-Za-z0-9-\.\,\ ]+)/([0-9]+)/?$ property_details.php?id=$3
+
+RewriteRule ^warehouse-for-rent/United-States/([A-Za-z0-9-\.\,\ ]+)/?$ searchresults.php?q=$1&%{QUERY_STRING}
+RewriteRule ^warehouse-for-rent/United-States/([A-Za-z0-9-\.\,\ ]+)/page(\-?[0-9]+)/?$ searchresults.php?q=$1&page=$2&%{QUERY_STRING}
+RewriteRule ^warehouse-for-rent/United-States/([A-Za-z0-9-]+)/([A-Za-z0-9-\.\,\ ]+)/?$ searchresults.php?q=$2,$1&%{QUERY_STRING}
+RewriteRule ^warehouse-for-rent/United-States/([A-Za-z0-9-]+)/([A-Za-z0-9-\.\,\ ]+)/page(\-?[0-9]+)/?$ searchresults.php?q=$2,$1&page=$3&%{QUERY_STRING}
+
+
+RewriteRule ^retail-for-rent/United-States/([A-Za-z0-9-]+)/([A-Za-z0-9-\.\,\ ]+)/([0-9]+)/?$ property_details.php?id=$3
+
+RewriteRule ^retail-for-rent/United-States/([A-Za-z0-9-\.\,\ ]+)/?$ searchresults.php?q=$1&%{QUERY_STRING}
+RewriteRule ^retail-for-rent/United-States/([A-Za-z0-9-\.\,\ ]+)/page(\-?[0-9]+)/?$ searchresults.php?q=$1&page=$2&%{QUERY_STRING}
+RewriteRule ^retail-for-rent/United-States/([A-Za-z0-9-]+)/([A-Za-z0-9-\.\,\ ]+)/?$ searchresults.php?q=$2,$1&%{QUERY_STRING}
+RewriteRule ^retail-for-rent/United-States/([A-Za-z0-9-]+)/([A-Za-z0-9-\.\,\ ]+)/page(\-?[0-9]+)/?$ searchresults.php?q=$2,$1&page=$3&%{QUERY_STRING}
+
+
+RewriteRule ^medical-for-rent/United-States/([A-Za-z0-9-]+)/([A-Za-z0-9-\.\,\ ]+)/([0-9]+)/?$ property_details.php?id=$3
+
+RewriteRule ^medical-for-rent/United-States/([A-Za-z0-9-\.\,\ ]+)/?$ searchresults.php?q=$1&%{QUERY_STRING}
+RewriteRule ^medical-for-rent/United-States/([A-Za-z0-9-\.\,\ ]+)/page(\-?[0-9]+)/?$ searchresults.php?q=$1&page=$2&%{QUERY_STRING}
+RewriteRule ^medical-for-rent/United-States/([A-Za-z0-9-]+)/([A-Za-z0-9-\.\,\ ]+)/?$ searchresults.php?q=$2,$1&%{QUERY_STRING}
+RewriteRule ^medical-for-rent/United-States/([A-Za-z0-9-]+)/([A-Za-z0-9-\.\,\ ]+)/page(\-?[0-9]+)/?$ searchresults.php?q=$2,$1&page=$3&%{QUERY_STRING}
+
+
+RewriteRule ^office-for-rent/United-States/([A-Za-z0-9-]+)/([A-Za-z0-9-\.\,\ ]+)/([0-9]+)/?$ property_details.php?id=$3
+
+RewriteRule ^office-for-rent/United-States/([A-Za-z0-9-\.\,\ ]+)/?$ searchresults.php?q=$1&%{QUERY_STRING}
+RewriteRule ^office-for-rent/United-States/([A-Za-z0-9-\.\,\ ]+)/page(\-?[0-9]+)/?$ searchresults.php?q=$1&page=$2&%{QUERY_STRING}
+RewriteRule ^office-for-rent/United-States/([A-Za-z0-9-]+)/([A-Za-z0-9-\.\,\ ]+)/?$ searchresults.php?q=$2,$1&%{QUERY_STRING}
+RewriteRule ^office-for-rent/United-States/([A-Za-z0-9-]+)/([A-Za-z0-9-\.\,\ ]+)/page(\-?[0-9]+)/?$ searchresults.php?q=$2,$1&page=$3&%{QUERY_STRING}
+
+
+RewriteRule ^united-states/([A-Za-z]+)/([A-Za-z\.\,\s\-]+)/office-space/([0-9]+)/?$ property_details.php?id=$3
+RewriteRule ^united-states/([A-Za-z]+)/([A-Za-z\.\,\s\-]+)/warehouse-space/([0-9]+)/?$ property_details.php?id=$3
+RewriteRule ^united-states/([A-Za-z]+)/([A-Za-z\.\,\s\-]+)/medical-space/([0-9]+)/?$ property_details.php?id=$3
+RewriteRule ^united-states/([A-Za-z]+)/([A-Za-z\.\,\s\-]+)/retail-space/([0-9]+)/?$ property_details.php?id=$3
+
+RewriteRule ^united-states/([A-Za-z0-9-\.\,\ ]+)/office-space/?$ searchresults.php?PropertyType=office&q=$1&%{QUERY_STRING}
+RewriteRule ^united-states/([A-Za-z0-9-\.\,\ ]+)/warehouse-space/?$ searchresults.php?PropertyType=industrial&q=$1&%{QUERY_STRING}
+RewriteRule ^united-states/([A-Za-z0-9-\.\,\ ]+)/medical-space/?$ searchresults.php?PropertyType=medical&q=$1&%{QUERY_STRING}
+RewriteRule ^united-states/([A-Za-z0-9-\.\,\ ]+)/retail-space/?$ searchresults.php?PropertyType=retail&q=$1&%{QUERY_STRING}
+
+RewriteRule ^united-states/([A-Za-z0-9-\.\,\ ]+)/office-space/page(\-?[0-9]+)/?$ searchresults.php?PropertyType=office&q=$1&page=$2&%{QUERY_STRING}
+RewriteRule ^united-states/([A-Za-z0-9-\.\,\ ]+)/warehouse-space/page(\-?[0-9]+)/?$ searchresults.php?PropertyType=industrial&q=$1&page=$2&%{QUERY_STRING}
+RewriteRule ^united-states/([A-Za-z0-9-\.\,\ ]+)/medical-space/page(\-?[0-9]+)/?$ searchresults.php?PropertyType=medical&q=$1&page=$2&%{QUERY_STRING}
+RewriteRule ^united-states/([A-Za-z0-9-\.\,\ ]+)/retail-space/page(\-?[0-9]+)/?$ searchresults.php?PropertyType=retail&q=$1&page=$2&%{QUERY_STRING}
+
+RewriteRule ^united-states/([A-Za-z0-9-]+)/([A-Za-z0-9-\.\,\ ]+)/office-space/?$ searchresults.php?PropertyType=office&q=$2,$1&%{QUERY_STRING}
+RewriteRule ^united-states/([A-Za-z0-9-]+)/([A-Za-z0-9-\.\,\ ]+)/warehouse-space/?$ searchresults.php?PropertyType=industrial&q=$2,$1&%{QUERY_STRING}
+RewriteRule ^united-states/([A-Za-z0-9-]+)/([A-Za-z0-9-\.\,\ ]+)/medical-space/?$ searchresults.php?PropertyType=medical&q=$2,$1&%{QUERY_STRING}
+RewriteRule ^united-states/([A-Za-z0-9-]+)/([A-Za-z0-9-\.\,\ ]+)/retail-space/?$ searchresults.php?PropertyType=retail&q=$2,$1&%{QUERY_STRING}
+
+RewriteRule ^united-states/([A-Za-z0-9-]+)/([A-Za-z0-9-\.\,\ ]+)/office-space/page(\-?[0-9]+)/?$ searchresults.php?PropertyType=office&q=$2,$1&page=$3&%{QUERY_STRING}
+RewriteRule ^united-states/([A-Za-z0-9-]+)/([A-Za-z0-9-\.\,\ ]+)/warehouse-space/page(\-?[0-9]+)/?$ searchresults.php?PropertyType=industrial&q=$2,$1&page=$3&%{QUERY_STRING}
+RewriteRule ^united-states/([A-Za-z0-9-]+)/([A-Za-z0-9-\.\,\ ]+)/medical-space/page(\-?[0-9]+)/?$ searchresults.php?PropertyType=medical&q=$2,$1&page=$3&%{QUERY_STRING}
+RewriteRule ^united-states/([A-Za-z0-9-]+)/([A-Za-z0-9-\.\,\ ]+)/retail-space/page(\-?[0-9]+)/?$ searchresults.php?PropertyType=retail&q=$2,$1&page=$3&%{QUERY_STRING}
+
+RewriteRule ^contactus\.php$ /contact.php [R=301]
+RewriteRule ^lasvegas\.php$ /commercial-real-estate/United-States/NV/Las\ Vegas [R=301]
+RewriteRule ^indianapolis\.php$ /commercial-real-estate/United-States/IN/Indianapolis [R=301]
+RewriteRule ^san\-diego\-office\-space$ /commercial-real-estate/United-States/CA/San\ Diego [R=301]
+RewriteRule ^washington\-dc\-office\-space$ /commercial-real-estate/United-States/DC/Washington [R=301]
+RewriteRule ^fortworth\.php$ /commercial-real-estate/United-States/TX/Fort\ Worth [R=301]
+RewriteRule ^seattle\.php$ /commercial-real-estate/United-States/WA/Seattle [R=301]
+RewriteRule ^oakland\.php$ /commercial-real-estate/United-States/CA/Oakland [R=301]
+RewriteRule ^dallas\-office\-space\.php$ /commercial-real-estate/United-States/TX/Dallas [R=301]
+RewriteRule ^santaana\.php$ /commercial-real-estate/United-States/CA/Santa\ Ana [R=301]
+RewriteRule ^sanantonio\.php$ /commercial-real-estate/United-States/TX/San\ Antonio [R=301]
+RewriteRule ^columbus\.php$ /commercial-real-estate/United-States/OH/Columbus [R=301]
+RewriteRule ^new\-york\-office\-space\.php$ /commercial-real-estate/United-States/NY/New\ York [R=301]
+RewriteRule ^houston\-office\-space\.php$ /commercial-real-estate/United-States/TX/Houston [R=301]
+RewriteRule ^phoenix\.php$ /commercial-real-estate/United-States/AZ/Phoenix [R=301]
+
+RewriteRule ^atlanta\.php$ /commercial-real-estate/United-States/GA/Atlanta [R=301]
+RewriteRule ^chicago\-office\-space\.php$ /commercial-real-estate/United-States/IL/Chicago [R=301]
+RewriteRule ^chicago\.php$ /commercial-real-estate/United-States/IL/Chicago [R=301]
+RewriteRule ^detroit\.php$ /commercial-real-estate/United-States/MI/Detroit [R=301]
+RewriteRule ^elpaso\.php$ /commercial-real-estate/United-States/TX/El\ Paso [R=301]
+RewriteRule ^home\.php$ / [R=301]
+RewriteRule ^irvine\.php$ /commercial-real-estate/United-States/CA/Irvine [R=301]
+RewriteRule ^jacksonville\.php$ /commercial-real-estate/United-States/FL/Jacksonville [R=301]
+RewriteRule ^login\.php$ / [R=301]
+RewriteRule ^los\-angeles\-office\-space\.php$ /commercial-real-estate/United-States/CA/Los\ Angeles [R=301]
+RewriteRule ^news\.php$ / [R=301]
+RewriteRule ^philadelphia\.php$ /commercial-real-estate/United-States/PA/Philadelphia [R=301]
+RewriteRule ^riverside\.php$ /commercial-real-estate/United-States/CA/Riverside [R=301]
+RewriteRule ^sacramento\-office\-space\.php$ /commercial-real-estate/United-States/CA/Sacramento [R=301]
+RewriteRule ^sanfrancisco\.php$ /commercial-real-estate/United-States/CA/San\ Francisco [R=301]
+RewriteRule ^search\_property\.php$ / [R=301]
+
+RewriteRule ^property\-\d+\.html$ / [R=301]
+
+RewriteRule ^oklahoma\.php$ / [R=301]
+RewriteRule ^milwukee\.php$ / [R=301]
+RewriteRule ^milwaukee\.php$ / [R=301]
+RewriteRule ^denver\.php$ / [R=301]
+RewriteRule ^washington\-dc\-office\-space\.php$ / [R=301]
+RewriteRule ^silicon\-valley\-office\-space\.php$ / [R=301]
+RewriteRule ^boston\.php$ / [R=301]
+RewriteRule ^baltimore\.php$ / [R=301]
+RewriteRule ^charlotte\.php$ / [R=301]
+RewriteRule ^portland\.php$ / [R=301]
+RewriteRule ^san\-diego\-office\-space\.php$ / [R=301]
+RewriteRule ^contactus\.php$ / [R=301]
+RewriteRule ^memphis\.php$ / [R=301]
+RewriteRule ^Nashville\.php$ / [R=301]
+RewriteRule ^Austin\.php$ / [R=301]
+RewriteRule ^rhode\-island\.html$ / [R=301]
+RewriteRule ^register\.php$ / [R=301]
+RewriteRule ^colorado\.html$ / [R=301]
+
+#RewriteCond %{REQUEST_FILENAME} !-f
+#RewriteCond %{REQUEST_FILENAME} !-d
+#RewriteRule ^(.*) index.php
+
+<IfModule mod_headers.c>
+# Set XSS Protection header
+Header set X-XSS-Protection "1; mode=block"
+</IfModule>
