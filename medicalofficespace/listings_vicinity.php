@@ -1,0 +1,70 @@
+<?php 
+include 'geotools.php';
+
+$sidebar_content = '';
+$distance = 10;
+$units = 'miles';
+
+$b = bound($latitude, $longitude, $distance,$units);
+$vicinity_sql_stmt = "SELECT * FROM medical_listing WHERE  ListingIsActive = 'y' AND 
+    Latitude BETWEEN {$b["S"]["lat"]} AND {$b["N"]["lat"]} AND
+    Longitude BETWEEN {$b["W"]["lon"]} AND {$b["E"]["lon"]} LIMIT 0, 20";
+	
+try {
+	$vicinity_result = $mysqli->query($vicinity_sql_stmt);
+}
+catch(exception $e) { var_dump($e);}
+
+while ($vicinity_row = mysqli_fetch_array($vicinity_result)) 
+{
+    if($vicinity_row['created_from'] == 'json') { 
+	$sidebar_content .= '<div class="col-sm-6" style="height: 220px;">';
+	$sidebar_content .='<table class="results-table"><tbody class="results-tbody"><tr><td rowspan="2" class="span3"><a href="/medical-space-for-sale/United-States/'.$vicinity_row["StateProvCode"].'/'.ltrim($vicinity_row['CityName']).'/'.$vicinity_row['ListingID'].'"> <img class="img-polaroid" id="img'.$vicinity_row['ListingID'].'" alt="'.$vicinity_row['StreetAddress'].'" src=\'';
+
+	if ($vicinity_row['PhotoURL'] != "") $sidebar_content .= $vicinity_row['PhotoURL'] ;
+	else $sidebar_content .= '/images/no-available.jpg';
+
+	$sidebar_content .='\'></a></td>';
+	$sidebar_content .='<td style="text-align: left; padding-left: 20px;"><span class="address_h4"><a href="/medical-space-for-sale/United-States/'.$vicinity_row["StateProvCode"].'/'.ltrim($vicinity_row['CityName']).'/'.$vicinity_row['ListingID'].'">'.$vicinity_row['StreetAddress'].'</a>'.($vicinity_row['suiteno'] ? '<br> '.$vicinity_row['suiteno'] : '').'</span><h4 class="top_rent">';
+    } else {
+	$sidebar_content .= '<div class="col-sm-6" style="height: 220px;">';
+	$sidebar_content .='<table class="results-table"><tbody class="results-tbody"><tr><td rowspan="2" class="span3"><a href="/medical-space-for-rent/United-States/'.$vicinity_row["StateProvCode"].'/'.ltrim($vicinity_row['CityName']).'/'.$vicinity_row['ListingID'].'"> <img class="img-polaroid" id="img'.$vicinity_row['ListingID'].'" alt="'.$vicinity_row['StreetAddress'].'" src=\'';
+
+	if ($vicinity_row['PhotoURL'] != "") $sidebar_content .= $vicinity_row['PhotoURL'] ;
+	else $sidebar_content .= '/images/no-available.jpg';
+
+	$sidebar_content .='\'></a></td>';
+	$sidebar_content .='<td style="text-align: left; padding-left: 20px;"><span class="address_h4"><a href="/medical-space-for-rent/United-States/'.$vicinity_row["StateProvCode"].'/'.ltrim($vicinity_row['CityName']).'/'.$vicinity_row['ListingID'].'">'.$vicinity_row['StreetAddress'].'</a>'.($vicinity_row['suiteno'] ? '<br> '.$vicinity_row['suiteno'] : '').'</span><h4 class="top_rent">';
+        
+    }
+	$thisRate = "Negotiable";
+/*
+	if ($vicinity_row['RentalRateMin'] == "Negotiable") $thisRate = "Inquire about rate";
+	else
+	{
+		if (strpos($vicinity_row['RentalRateMin'], 'Year') !== false)
+		{
+			if (strpos($vicinity_row['RentalRateMin'], '/SF/Year')) $thisRate = '$ '.number_format(floatval(ereg_replace("[^-0-9\.]", "", $vicinity_row['RentalRateMin'])/12) * floatval(ereg_replace("[^-0-9\.]", "", $vicinity_row['SpaceAvailable']))).'/mo';
+			else $thisRate = '$ '.number_format(floatval(ereg_replace("[^-0-9\.]", "", $vicinity_row['RentalRateMin'])/12)).'/mo';
+		}
+		elseif (strpos($vicinity_row['RentalRateMin'], 'SF') !== false) 
+			$thisRate = '$ '.number_format(floatval(ereg_replace("[^-0-9\.]", "", $vicinity_row['RentalRateMin'])) * floatval(ereg_replace("[^-0-9\.]", "", $vicinity_row['SpaceAvailable']))).'/mo';
+		else
+			$thisRate = '$ '.number_format(floatval(ereg_replace("[^-0-9\.]","",$vicinity_row['RentalRateMin']))).'/mo';
+	}
+*/	
+//	$sidebar_content.= $thisRate;
+	$sidebar_content .='</h4><br /><span class="city_state_span">'.$vicinity_row['CityName'].', '.$vicinity_row["StateProvCode"].'</span></td></tr>';
+	$sidebar_content .='<tr><td style="padding-left: 10px;"><table><tbody><tr><td class="prop-type-td">';
+	$sidebar_content .=$vicinity_row['PropertyType'].'<br>'.$vicinity_row['PropertySubType'].'</td>';
+	$sidebar_content .= '<td class="space-td"><span class="space-total">'.number_format (ereg_replace("[^-0-9\.]","",$vicinity_row['SpaceAvailableTotal'])).'</span> <br><small>sq. ft. </small></td>';
+	$sidebar_content .='<td class="rent-td">';
+//	$sidebar_content .= ($vicinity_row['RentalRateMin'] == "Negotiable")? "Negotiable <br> <br>" :(strpos($vicinity_row['RentalRateMin'],'Year') !==false) ? number_format (floatval(ereg_replace("[^-0-9\.]","",$vicinity_row['RentalRateMin'])/12),2): number_format (floatval(ereg_replace("[^-0-9\.]","",$vicinity_row['RentalRateMin'])),2);
+//	$sidebar_content .= '<br><small>$/sf./month</small>';
+	$sidebar_content .='</td></tr></tbody></table>';
+	$sidebar_content .='</td></tr></tbody></table>';
+	$sidebar_content .='</div>';
+}
+
+print $sidebar_content;
+?>	
