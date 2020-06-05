@@ -178,6 +178,7 @@ elseif ($ref_file == 'contact'){
         <script src="/js/template.js"></script>
         <script src="/js/bootstrap3-typeahead.js"></script>
         <script src="/js/jquery.flexslider.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.js"></script>        
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -254,7 +255,7 @@ error_reporting(1);
 					<ul>
 						<li class="logo-wrapper"><a href="/"><h3>Medical Office Space</h3></a> <!--<h4>Find Medical Office Space For Lease and For Sale</h4>!--></li>
 						<li>
-							<a href="tel:+1-855-989-5894"><h3>(855) 989-5894</h3></a>
+							<a href="tel:+1-800-481-0120"><h3>(800) 481-0120</h3></a>
 						</li>
 						<li>
 							<a href="/about.php">ABOUT&nbsp;US</a>
@@ -266,3 +267,34 @@ error_reporting(1);
 				</nav>
 			</div>
 		</div>
+		
+		<?php 
+		///dev/
+
+		if($_SERVER['REQUEST_URI'] != '/dev/coronavirus.php' && $_SERVER['REQUEST_URI'] != '/coronavirus.php') { ?>
+		    <?php if($_SERVER['REQUEST_URI'] == '/dev/') { ?>
+		<div class="">
+		    <?php } else { ?>
+		<div class="" style="background:red;">
+		    <?php } ?>
+		    <?php if($_SERVER['REQUEST_URI'] == '/dev/') { ?>
+		    <div class="container corona-note">
+		        <?php } else { ?>
+		    <div class="container corona-note">
+		       
+
+		        <?php } ?>
+		        
+		        <div class="col-md-12 row-fluid marginxs" style="margin:0px;">
+		        <!--<h2 style="color:#fff;">Covid-19 Update:</h2>-->
+		        <div style="width:100%">
+		        <h2 style="width:90%; float:left; color:#fff;">Given the current Coronavirus pandemic, we are here as a resource should you wish to contact us about any real estate related issues and potential options/solutions. Hopefully this input may help with any business contingency planning you may be undertaking.</h2>
+		        <a style="text-decoration:underline;color:#fff;float:right;text-decoration: none;margin-top: 10px;font-weight: bold;background: #fff;color: #C60001;padding: 10px;" href="coronavirusnew.php">Contact Us</a>
+		        </div>
+		        <!--<h2>**Given the current coronavirus pandemic impacting many businesses, we are here as a resource should you wish to contact us about any real estate related issues and what the potential options/solutions might be.  Hopefully this input may help with any business contingency planning you may be undertaking. <a href="coronavirus.php">Read More</a></h2>-->
+		        </div>
+		    </div>
+		</div>
+		<?php } ?>
+		
+		

@@ -1,6 +1,7 @@
 <?php include 'header.php'; ?>
 <!--<script type="text/javascript" src="//maps.googleapis.com/maps/api/js?key=AIzaSyDO2jhnIVC1uq_zYEodibtHbGiFi3lMG3Y"></script>-->
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDO2jhnIVC1uq_zYEodibtHbGiFi3lMG3Y&libraries=places" type="text/javascript"></script>
+<!--<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDO2jhnIVC1uq_zYEodibtHbGiFi3lMG3Y&libraries=places" type="text/javascript"></script>-->
+<script src="https://maps.google.com/maps/api/js?v=3.3&amp;libraries=geometry&amp;sensor=false&amp;key=AIzaSyCHshD_ES6pPAGYsJ3nudoQk8Rk63QKvaU" type="text/javascript"></script>
 
 <script type="text/javascript">
 var map = null;
@@ -13,52 +14,6 @@ function handleNoFlash(errorCode) {
     return;
   }
 }  
-    var infoList = [];  // Array to store the popup infowindows content
-	 
-	 var map; //var used to store the map generated using google maps API
-	 
-	 var infoWindow = new google.maps.InfoWindow();
-    
-function callback(results, status) {
-  if (status !== google.maps.places.PlacesServiceStatus.OK) {
-    console.error(status);
-    return;
-  }
-  for (var i = 0, result; result = results[i]; i++) {
-if(i < 10) {
-var theDiv = document.getElementById("hospital_content");
-theDiv.innerHTML += "<div>" + result.name +"<br>" + result.vicinity + "</div><br />"; 
-}
-console.log('Hospital : ' + result.name + 'Address : ' + result.vicinity);
-    addMarker(result);
-  }
-}
-
-function addMarker(place) {
-  var marker = new google.maps.Marker({
-    map: map,
-    position: place.geometry.location,
-    icon: {
-      url: 'http://maps.google.com/mapfiles/kml/shapes/hospitals.png',
-      anchor: new google.maps.Point(10, 10),
-      scaledSize: new google.maps.Size(20, 20)
-    }
-  });
-  google.maps.event.addListener(marker, 'click', function() {
-    service.getDetails(place, function(result, status) {
-      if (status !== google.maps.places.PlacesServiceStatus.OK) {
-        console.error(status);
-        return;
-      }
-      infoWindow.setContent(result.name);
-      infoWindow.open(map, marker);
-    });
-  });
-}
-   
-//////////////////////////////////////////////////////////////////////////////////
-//  js function to initialise google map                                        //
-//////////////////////////////////////////////////////////////////////////////////
 
 function initialize(address, Lat, Lng) {
  var myLatlng = new google.maps.LatLng(Lat, Lng);
@@ -68,94 +23,15 @@ function initialize(address, Lat, Lng) {
       var panoramaOptions = { pov: { heading: 270, pitch: 0 } };
       var myStreetView = new google.maps.StreetViewPanorama(document.getElementById("pano"), panoramaOptions);
       myStreetView.setPosition(myLatlng);
-      //var marker = new google.maps.Marker({ position: results[0].geometry.location, map: myStreetView, title: address })
-
-        var mapOptions = {
-          center: results[0].geometry.location,
-          zoom: 10,
-          mapTypeId: google.maps.MapTypeId.ROADMAP,
-     
-        };
-        map = new google.maps.Map(document.getElementById("map_canvas"),  mapOptions);
-var marker = new google.maps.Marker({position: results[0].geometry.location, map: map});  
-        
-        var center = results[0].geometry.location;
-        
-        var request = {
-    location: center,
-    radius: '50000',
-    type: ['hospital']
-  };
-
-  service = new google.maps.places.PlacesService(map);
-  service.nearbySearch(request, callback);
-
-
+      //var marker = new google.maps.Marker({ position: results[0].geometry.location, map: myStreetView, title: address });
+      
+      var mapOptions = { zoom: 14, center: results[0].geometry.location, mapTypeId: google.maps.MapTypeId.ROADMAP };
+      var map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+      var marker = new google.maps.Marker({position: results[0].geometry.location, map: map});	
     }
   }); 
-		
-          
-          
-
-//////////////////////////////////////////////////////////////////////////////////
-//Create the map control to expand and reset map size                           //
-//////////////////////////////////////////////////////////////////////////////////
-          
-		var controlDiv = document.createElement('div');
-		var myControl = new ResizeControl(controlDiv,map);
-		controlDiv.index =0;
-		controlDiv.id = "mapExpand";
-		controlDiv.style.zIndex = 1;
-		controlDiv.style.right = 0;
-		map.controls[google.maps.ControlPosition.BOTTOM_RIGHT].push(controlDiv);
 }
-     // google.maps.event.addDomListener(window, 'load', initialize);
-        
-					
-	function ResizeControl(controlDiv, map) {
-	  
-    // Set CSS styles for the DIV containing the control
-    // Set CSS for the control border
-  var controlUI = document.createElement('div');  
-  controlUI.style.width = '32px';
-  controlUI.style.height = '32px';
-  controlUI.style.cursor = 'pointer';
-  controlUI.style.textAlign = 'center';
-  controlUI.title = 'Click to Expand the map';
-  controlDiv.appendChild(controlUI);
 
-	  google.maps.event.addDomListener(controlUI, 'click', function() {
-		if($("#small-map").hasClass("span4"))	
-            {
-                $("#small-map").removeClass("span4").addClass("span12");
-                $("#map_canvas").addClass("span12");
-                $("#filter-form").addClass("span4").appendTo("#canvas2");
-                $("#results-div").appendTo("#canvas2");
-                $("#mapExpand").css({backgroundPosition: '0px -76px'});
-                
-                google.maps.event.trigger(map, 'resize');
-                map.fitBounds();
-            }
-		else {
-                $("#small-map").removeClass("span12").addClass("span4");
-                $("#results-div").removeClass("span4").appendTo("#canvas1");
-                $("#filter-form").removeClass("span4").appendTo("#small-map");
-                $("#mapExpand").css({backgroundPosition: '0px 0px'});
-                google.maps.event.trigger(map, 'resize');
-                map.fitBounds();
-    		}
-		
-	  });
-
-    //add google events and triggers to move the controlUI div to the right bottom corner
-    google.maps.event.addListener(map, 'bounds_changed', function(){
-        $("#mapExpand").css({right:0}).zIndex(1000002);
-    });
-    google.maps.event.addListener(map, 'idle', function(){
-        $("#mapExpand").css({right:0}).zIndex(1000002);
-    });
-   
-}
 function showAddress(address) {
   if (geocoder) {
     geocoder.getLatLng(
@@ -171,7 +47,7 @@ function showAddress(address) {
   }
 }
 </script>
-    <div class="section section-breadcrumbs">
+<div class="section section-breadcrumbs">
       <div class="container">
         <div class="row">
           <div class="col-md-12" style="padding: 0px;">
@@ -272,16 +148,17 @@ if (preg_match("/^(.*)(\<strong\>Listing Credit\<\/strong\>.*\<br\s\/\>.*)$/i", 
             <p>&nbsp;</p>
               <p><?=$row["Description"]?></p>
               <p>&nbsp;</p>
+              
               <!--<div id="map_canvas" style="float: left; height: 400px; width: 50%; margin-bottom: 30px;"></div>
               <div id="pano" style="float: left; height: 400px; width: 50%; margin-bottom: 30px;"></div>-->
-              <div id="map_canvas" style="float: left; width: 50%;"></div>
-              <div id="pano" style="float: left; width: 50%;"></div>
               <p>
 <?php   echo "<h3>".$row['CityName']." Hospitals</h3>"; ?>
 <div id="hospital_content"></div>
 
-<?=$agents?></p>
-
+<?=$agents?></p><p>
+	    				<div id="map_canvas" style="float: left; height: 400px; width: 50%; margin-bottom: 30px;"></div>
+	    				<div id="pano" style="float: left; height: 400px; width: 50%; margin-bottom: 30px;"></div>
+</p>
             </div>
             <!-- End Medical Image -->
             <!-- Product Summary & Options -->
