@@ -1,5 +1,5 @@
 <?php include 'header.php'; ?>
-<script src="https://maps.google.com/maps/api/js?v=3.3&amp;libraries=geometry&amp;sensor=false&amp;key=AIzaSyCNswMe5_HsaKaYjqmzPe-FP-19rBqafd4" type="text/javascript"></script>
+<!--<script src="https://maps.google.com/maps/api/js?v=3.3&amp;libraries=geometry&amp;sensor=false&amp;key=AIzaSyDyfRy-J4yLknJAI3anM5w4OuVVt8NmQtU" type="text/javascript"></script>-->
 <script type="text/javascript">
 var map = null;
 var geocoder = null;
@@ -85,7 +85,7 @@ header('Location:'. $redirect_url);
 <?php } else { ?>
 	    				<h1 style="background: #fff; padding: 5px; color: #000;"><?=$row['StreetAddress']?></h1>
 <?php } ?>
-        <h1 style="background: #fff; padding: 5px;"><small style="color: #000;"><?=$row['CityName']?>, <?=$row['StateProvCode']?> | <?=number_format($row['SpaceAvailableTotal'] != "") ? number_format(ereg_replace("[^-0-9\.]", "", $row['SpaceAvailableTotal'])) : number_format(ereg_replace("[^-0-9\.]", "", $row['SpaceAvailableMin'])) ?> sq. ft. | <?
+        <h1 style="background: #fff; padding: 5px;"><small style="color: #000;"><?=$row['CityName']?>, <?=$row['StateProvCode']?> | <?=number_format($row['SpaceAvailableTotal'] != "") ? number_format(ereg_replace("[^-0-9\.]", "", $row['SpaceAvailableTotal']) + 5) : number_format(ereg_replace("[^-0-9\.]", "", $row['SpaceAvailableMin'])+ 5 )  ?> sq. ft. | <?
 if ($row['RentalRateMin'] == "Negotiable") $thisRate = "Inquire about rate";
 else
 {
@@ -177,7 +177,7 @@ if ($row['PhotoURL2'] != "" || $row['PhotoURL3'] != "" || $row['PhotoURL4'] != "
     });
   </script>
 <table>
-						<tr><td class="detail-key"> Space Available: </td><td class="detail-value">  <?=number_format ($row['SpaceAvailableTotal'] != "")?number_format (ereg_replace("[^-0-9\.]","",$row['SpaceAvailableTotal'])):number_format (ereg_replace("[^-0-9\.]","",$row['SpaceAvailableMin']))?> <small>sq. ft. </small></td></tr>
+						<tr><td class="detail-key"> Space Available: </td><td class="detail-value">  <?=number_format ($row['SpaceAvailableTotal'] != "")?number_format (ereg_replace("[^-0-9\.]","",$row['SpaceAvailableTotal'] ) + 5 ) :number_format (ereg_replace("[^-0-9\.]","",$row['SpaceAvailableMin'] ) + 5 )  ?> <small>sq. ft. </small></td></tr>
 						<tr><td class="detail-key"> Type: </td><td class="detail-value"><?=$row['PropertyType']?> - <?=$row['PropertySubType']?> </td></tr>
 
 						<?php
@@ -196,29 +196,55 @@ $rent_amount = ereg_replace("[^-0-9\.]", "", $row['RentalRateMin']);
  $space_amount = preg_replace("/[^0-9]/", "", $row['SpaceAvailable']);
  $rent_final = $rent_amount / $space_amount;
        if (preg_match('/\Month\b/', $row['RentalRateMin'])) {
- $rental_rate_min = number_format($rent_final,2) . '/SF/Month'; 
+ $rental_rate_min = number_format($rent_final,2) + .01 . '/SF/Month'; 
  } else {
- $rental_rate_min = number_format(($rent_amount / 12),2) . '/SF/Month';        
+ $rental_rate_min = number_format(($rent_amount / 12),2) + .01 . '/SF/Month';        
 
    }
  if($row['created_from'] == 'json') {
-$rental_rate_min = number_format($rent_amount / ereg_replace(",", "", $row['SpaceAvailable']),2) . '/SF/Month';
+$rental_rate_min = number_format($rent_amount / ereg_replace(",", "", $row['SpaceAvailable']),2) + .01 . '/SF/Month';
 }
 
 if($rental_rate_min == '0.00/SF/Month') {
-    $rental_rate_min = substr($rent_amount,0,4) . '/SF/Month';
+    $rental_rate_min = substr($rent_amount,0,4) + .01 . '/SF/Month';
 }
+
 ?>
 <?php if($row['created_from'] == 'json') {
 //$rental_rate_min = $row['RentalRateMin'];
  ?>
-						<tr><td class="detail-key"> Est. Price: </td><td class="detail-value"><? echo '$'. $rental_rate_min; ?></td></tr>
+						<tr><td class="detail-key"> Est. Price: </td><td class="detail-value"><? 
+						if($row['RentalRateMin'] == 'Negotiable') {
+                        echo    $rental_rate_min = '$1.00/SF/Month';
+                        } else if($rental_rate_min == '$0.01/SF/Month') {
+                        echo    $rental_rate_min = 'Negotiable';    
+                        } else {
+						    echo '$'. $rental_rate_min; 
+						}
+						?></td></tr>
 <?php } else { ?>
-						<tr><td class="detail-key"> Est. Rent: </td><td class="detail-value"><? echo '$'. $rental_rate_min; ?></td></tr>
+						<tr><td class="detail-key"> Est. Rent: </td><td class="detail-value"><? 
+						if($row['RentalRateMin'] == 'Negotiable') {
+                        echo    $rental_rate_min = '$1.00/SF/Month';
+                        } else if($rental_rate_min == '0.01/SF/Month') {
+                        echo    $rental_rate_min = 'Negotiable';    
+                        } else {
+						    echo '$'. $rental_rate_min; 
+						}
+						?></td></tr>
 
 <?php } ?>
 					</table>
 					<p>&nbsp;</p>
+<div class="singleWarehouseInfo">
+                                    <a href="#inquireModal" class="" data-toggle="modal">Inquire about listing</a>
+                                    <?php if(!empty($row['floor_plan'])) { ?>
+                                    <a download href="<?php echo $row['floor_plan'];?>" class="" data-toggle="modal">Download Floorplan</a>
+                                    <?php } ?>
+                                    <!--<a href="#tourListingModal" class="" data-toggle="modal">Tour listing</a>-->
+</div>
+						<p>&nbsp;</p>
+
 <?
 if (preg_match("/^(.*)(\<em\>Listing Provided by\<\/em\>.*\<br\s\/\>.*)$/i", $row["Description"], $matches))
 {
@@ -230,8 +256,8 @@ if (preg_match("/^(.*)(\<em\>Listing Provided by\<\/em\>.*\<br\s\/\>.*)$/i", $ro
  //echo $row["Description"]; 
  ?></p>
 	    				<p>&nbsp;</p>
-	    				<div id="map_canvas" style="float: left; height: 400px; width: 50%; margin-bottom: 30px;"></div>
-	    				<div id="pano" style="float: left; height: 400px; width: 50%; margin-bottom: 30px;"></div>
+	    				<!--<div id="map_canvas" style="float: left; height: 400px; width: 50%; margin-bottom: 30px;"></div>
+	    				<div id="pano" style="float: left; height: 400px; width: 50%; margin-bottom: 30px;"></div>-->
 	    				<p><?=$agents?></p>
 	    			</div>
 	    				
@@ -420,4 +446,87 @@ $("#submit-contact-form").click(function () {
 		}
 
 	</script>
+	
+<div id="inquireModal" class="modal fade marketReportModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+                        <div class="modal-content-area bullet-text">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	        			    <h3><?php echo $row['StreetAddress'] . ',' . $row['CityName'] . ',' . $row['StateProvCode']; ?></h3>
+	        			    <p>Let us know how to contact you and we'll reach out with more details on this space and a complete property report on other similar options in the market.</p>                                
+                                <!--<h3 id="myModalLabel">
+                                    Free Property Report
+                                </h3>-->
+                            </div>
+                            <div class="modal-content">
+	    			<div class="col-sm-12 product-details" style="background: none repeat scroll 0% 0% padding-box #FFF;">
+	    				<!--<h2 style="color: black;">Free Property Report</h2>-->
+	    				<!--
+<form id="contact-form" method="post" action="/process_contact_form.php" novalidate="novalidate">
+				<input type="hidden" name="utm_source" value="">
+				<input type="hidden" name="utm_campaign" value="">
+				<input type="hidden" name="property_url" value="https://warehousespaces.com/">
+				<input type="hidden" name="contact_company" value="">
+                <input type="hidden" name="property_type" value="w">
+				<input type="hidden" name="contact_budget" value="">
+	    		<div class="row-fluid">
+					<div class="col-md-4">
+						<ul class="list-unstyled">
+							<li> <i class="icon-ok"></i> <b>See all lease/purchase options in 24 hours</b></li>
+							<li> <i class="icon-ok"></i> <b>Get 1-2+ months of free rent on most leases</b></li>
+							<li> <i class="icon-ok"></i> <b>We can negotiate 15-20% off list price</b></li>
+							<li> <i class="icon-ok"></i> <b>Our tenant broker service is 100% free to clients</b></li>
+						</ul>
+						<p><strong>We can answer questions, send you a short list of options and schedule tours.</strong></p>
+						<p>&nbsp;</p>
+						<h6><small> By clicking Submit, you agree to our terms of user and privacy policy. Your message will be sent to local broker and not made public.</small></h6>
+					</div>
+					<div class="col-md-4">
+                    	<input class="form-firstname" type="text" placeholder="First Name" name="contact_firstname">
+                    	<input class="form-control required" type="text" placeholder="Name" name="contact_name"><br>
+                    	<input class="form-control required" type="tel" placeholder="Phone" name="contact_phone"><br>
+                    	<input class="form-control required email" type="email" placeholder="Email" name="contact_email"><br>
+                    	<input class="form-control required" type="text" placeholder="Company" name="contact_company">
+					</div>
+					<div class="col-md-4">
+						<input class="form-control required" type="text" placeholder="Location" name="contact_location"><br>
+						<input class="form-control required" type="text" placeholder="Square Feet?" name="contact_sq_ft"><br>
+						<textarea class="form-control required" rows="2" name="contact_message" placeholder="What can you tell us about what you are looking for?"></textarea><br>
+						<button class="btn btn-block btn-danger" type="submit" id="submit-contact-form" name="submit_contact_form">Submit</button>	
+</div>
+</div>
+</form>  -->
+
+		<form id="contact-form" method="post" action="/process_contact_form.php" >
+				<input type="hidden" name="utm_source" value="<? if ($_SESSION["utm_source"]) echo $_SESSION["utm_source"]; ?>" />
+				<input type="hidden" name="utm_campaign" value="<? if ($_SESSION["utm_campaign"]) echo $_SESSION["utm_campaign"]; ?>" />
+				 <label for="contact_first_name">Name:</label> 
+                    <input class="form-control required" type="text" placeholder="First Name" name="contact_first_name" ><br />
+				 <label for="contact_email">Email Address</label> 	
+                    <input class="form-control required email" type="email" placeholder="Email" name="contact_email" ><br />
+
+				 <label for="contact_phone">Phone</label> 
+                    <input class="form-control required" type="tel" placeholder="Phone Number" name="contact_phone"><br />
+                <label for="contact_location">Location</label> 
+				<input class="form-control required" type="text" placeholder="Location" name="contact_location"><br />
+
+                <label for="contact_sq_ft">Square Feet</label> 
+				<input class="form-control required" type="text" placeholder="Square Feet?" name="contact_sq_ft"><br />                    
+                <label for="contact_message">Additional Requirements:</label>	 
+                    <textarea class="form-control required" rows="3" name="contact_message" placeholder="Additional Requirements" ><?php echo $message_content; ?></textarea>
+				<br />
+                    <button class="btn btn-block btn-danger" type="submit" id="submit-contact-form" name="submit_contact_form">SEND INQUIRY</button>
+                    <input type="hidden" name="property_url" value ="http://<?=$curr_url?>">
+		      </form>
+         <h6><small> By clicking Submit, you agree to our terms of user and privacy policy. Your message will be sent to local broker and not made public.</small></h6>
+			</div>
+
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+
+	
 	<?php include 'footer.php'; ?>

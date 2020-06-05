@@ -1,5 +1,108 @@
 <?php include 'header.php'; ?>
+    <link
+      href="https://fonts.googleapis.com/css?family=Open+Sans"
+      rel="stylesheet"
+    />
+    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v1.10.1/mapbox-gl.js"></script>
+    <link
+      href="https://api.tiles.mapbox.com/mapbox-gl-js/v1.10.1/mapbox-gl.css"
+      rel="stylesheet"
+    />
 
+<!--<script src="https://warehousespaces.com/dev/ol-popup.js"></script>-->
+    <script src="https://unpkg.com/@google/markerclustererplus@4.0.1/dist/markerclustererplus.min.js"></script>
+<style>
+.pagination-wrapper { display:none; } 
+#map { height:400px; } 
+          .ol-popup {
+    position: absolute;
+    background-color: white;
+    -webkit-filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
+    filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #cccccc;
+    bottom: 12px;
+    left: -50px;
+}
+      .marker {
+    position:absolute;cursor:pointer;width:10px;height:10px;border-radius:10px;background:#0446ff;border:2px solid white;box-shadow:0 0 1px 1px rgba(0,0,0,0.4)      }
+      .mapboxgl-popup {
+        max-width: 200px;
+      }
+      .mapboxgl-popup-content {
+        text-align: center;
+        font-family: 'Open Sans', sans-serif;
+      }
+      
+          .ol-popup {
+    position: absolute;
+    background-color: white;
+    -webkit-filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
+    filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #cccccc;
+    bottom: 12px;
+    left: -50px;
+}
+.ol-popup:after, .ol-popup:before {
+    top: 100%;
+    border: solid transparent;
+    content: " ";
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+}
+.ol-popup:after {
+    border-top-color: white;
+    border-width: 10px;
+    left: 48px;
+    margin-left: -10px;
+}
+.ol-popup:before {
+    border-top-color: #cccccc;
+    border-width: 11px;
+    left: 48px;
+    margin-left: -11px;
+}
+.ol-popup-content {
+    position: relative;
+    min-width: 200px;
+    min-height: 150px;
+    height: 100%;
+    max-height: 250px;
+    padding:2px;
+    white-space: normal;        
+    background-color: #f7f7f9;
+    border: 1px solid #e1e1e8;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+.ol-popup-content p{
+    font-size: 14px;
+    padding: 2px 4px;
+    color: #222;
+    margin-bottom: 15px;
+}
+.ol-popup-closer {
+    position: absolute;
+    top: -4px;
+    right: 2px;
+    font-size: 100%;
+    color: #0088cc;
+    text-decoration: none;
+}
+a.ol-popup-closer:hover{
+    color: #005580;
+    text-decoration: underline;
+}
+.ol-popup-closer:after {
+    content: "✖";
+}
+
+</style>
 <link rel="stylesheet" href="https://warehousespaces.com/js/leaflet/leaflet.css" />
 
 <!--[if lte IE 8]>
@@ -32,13 +135,19 @@
 
 </style>
 
-<script src="https://maps.google.com/maps/api/js?v=3.3&amp;libraries=geometry&amp;sensor=false&amp;key=AIzaSyCNswMe5_HsaKaYjqmzPe-FP-19rBqafd4" type="text/javascript"></script>
+<!--<script src="https://maps.google.com/maps/api/js?v=3.3&amp;libraries=geometry&amp;sensor=false&amp;key=AIzaSyA6tLf-xU4jSAKVNYgMmi7rf9LWySsBAbQ" type="text/javascript"></script>-->
+
+<!--<script src="https://maps.google.com/maps/api/js?v=3.3&amp;libraries=geometry&amp;sensor=false&amp;key=AIzaSyDyfRy-J4yLknJAI3anM5w4OuVVt8NmQtU" type="text/javascript"></script>-->
+<script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
 
 <?php
 
 $prop_type_array = array("office" => "office-space", "industrial" => "warehouse-space", "medical" => "medical-space", "retail" => "retail-space");
 
 $markers_script = ""; //variable to store map markers
+$markers_script_new = '';
+$markers_script_new_map = '';
+$mapbox_markers = '';
 
 $popup_script = ""; //variable to store popup infowindows in map
 
@@ -166,11 +275,11 @@ $states = array(
 
 
 
-if (sizeof($q) > 1 ) $search_sql_stmt = "select distinct *, 1 AS rank from warehouse_listing where ListingIsActive = 'y' AND CityName ='".trim($q[0])."' and PostalCode = '".trim($q[1])."'";
+if (sizeof($q) > 1 ) $search_sql_stmt = "select distinct *, 1 AS rank from warehouse_listing where SpaceAvailable >= 5000 AND ListingIsActive = 'y' AND CityName ='".trim($q[0])."' and PostalCode = '".trim($q[1])."'";
 
 else {
 
-	if ($q[0] == 'Arlington' || $q[0] == 'arlington') $search_sql_stmt = "select distinct *, 1 AS rank from warehouse_listing WHERE ListingIsActive = 'y' AND CityName = '".$q[0]."'";
+	if ($q[0] == 'Arlington' || $q[0] == 'arlington') $search_sql_stmt = "select distinct *, 1 AS rank from warehouse_listing WHERE SpaceAvailable >= 5000 AND ListingIsActive = 'y' AND CityName = '".$q[0]."'";
 
 	else 
 
@@ -178,7 +287,7 @@ else {
 
 		{
 
-		 	$search_sql_stmt = "select distinct *, 1 AS rank from warehouse_listing WHERE ListingIsActive = 'y' AND StateProvCode like '%".$q[0]."%'";
+		 	$search_sql_stmt = "select distinct *, 1 AS rank from warehouse_listing WHERE SpaceAvailable >= 5000 AND ListingIsActive = 'y' AND StateProvCode like '%".$q[0]."%'";
 
 		 	$statecode = $q[0];
 
@@ -194,7 +303,7 @@ else {
 
 					$search = $states[$q[0]];
 
-			   $search_sql_stmt = "select distinct *, 1 AS rank from warehouse_listing WHERE ListingIsActive = 'y' AND  StateProvCode ='". $search."'";
+			   $search_sql_stmt = "select distinct *, 1 AS rank from warehouse_listing WHERE SpaceAvailable >= 5000 AND ListingIsActive = 'y' AND  StateProvCode ='". $search."'";
 
 				}
 
@@ -204,7 +313,7 @@ else {
 
 					$search = $q[0];
 
-			  $search_sql_stmt = "select distinct *, 1 AS rank from warehouse_listing WHERE ListingIsActive = 'y' AND concat(CityName, StateProvCode, PostalCode) like '%".trim(str_replace("-", " ", $search))."%'";
+			  $search_sql_stmt = "select distinct *, 1 AS rank from warehouse_listing WHERE SpaceAvailable >= 5000 AND ListingIsActive = 'y' AND concat(CityName, StateProvCode, PostalCode) like '%".trim(str_replace("-", " ", $search))."%'";
 
 				}
 
@@ -230,7 +339,7 @@ else {
 
 		{
 
-			$zip_where_clause = " OR (ListingIsActive = 'y' AND (";
+			$zip_where_clause = " OR (SpaceAvailable >= 10000 AND ListingIsActive = 'y' AND (";
 
 			foreach ($zip_codes AS $key => $value) $zip_where_clause .= "PostalCode = '".$value."' OR ";
 
@@ -370,9 +479,10 @@ try {
     	if(!isset($_GET['sell_property'])) {
 
     	$sidebar_content .= '<div class="col-sm-12"><h2 style="background-color: #ffffff;">'.ucwords( $q[0].' '.$prop_type.' Warehouse Space for rent').'</h2></div>';
-
+    	$k = 0;
+    	$new_rent = 0;
 		while ($row = mysqli_fetch_array($result_page)) {
-
+			if($k < 20) {
 		 	if (empty($statecode)) $statecode = $row["StateProvCode"];
 
         	//////////////////////////////////////////////
@@ -381,7 +491,8 @@ try {
 
         	//////////////////////////////////////////////
 
-        	$mod_StreetAddress = substr($row['StreetAddress'].($row['SpaceNumber'] ? ', '.$row['SpaceNumber'] : ""), 0, 23);
+        	//$mod_StreetAddress = substr($row['StreetAddress'].($row['SpaceNumber'] ? ', '.$row['SpaceNumber'] : ""), 0, 23);
+        	$mod_StreetAddress = $row['StreetAddress'];
 
 	if (strpos($row['RentalRateMin'], 'Year') !== false)
 
@@ -422,12 +533,12 @@ try {
 //echo "<br>" . $new_price_calc =  str_replace( ',', '', $thisRateNew);
 
 $new_sqft =   str_replace( ',', '', substr($row['SpaceAvailable'],0, -3));
-if($new_sqft >= 5000) {
+if($new_sqft >= 0) {
         	if($row['created_from'] == 'json')
 
         	{
 
-        	$sidebar_content .= '<div class="col-sm-4" style="height:500px;"><div class="shop-item"><div class="image">
+        	$sidebar_content .= '<div class="col-sm-4 topheadcustom" style="height:500px;"><h3 class="custom_headblue">FOR SALE</h3><div class="shop-item"><div class="image">
 
 								<a href="/warehouse-for-sale/United-States/'.$row["StateProvCode"].'/'.trim($row['CityName']).'/'.$row['ListingID'].'"><img class="img-polaroid" id="img'.$row['ListingID'].'" height="150" alt="'.$row['StreetAddress'].'" src="';
 
@@ -441,7 +552,7 @@ if($new_sqft >= 5000) {
 
 
 
-        	$sidebar_content .= '<div class="col-sm-4" style="height:500px;"><div class="shop-item"><div class="image">
+        	$sidebar_content .= '<div class="col-sm-4 topheadcustom" style="height:500px;"><h3 class="custom_headblue">FOR LEASE</h3><div class="shop-item"><div class="image">
 
 								<a href="/warehouse-for-rent/United-States/'.$row["StateProvCode"].'/'.trim($row['CityName']).'/'.$row['ListingID'].'"><img class="img-polaroid" id="img'.$row['ListingID'].'" height="150" alt="'.$row['StreetAddress'].'" src="';
 			}
@@ -498,7 +609,11 @@ if($new_sqft >= 5000) {
 
 
 
-if ($row['RentalRateMin'] == "Negotiable") $sidebar_content .=  "Negotiable";
+if ($row['RentalRateMin'] == "Negotiable")
+{
+    $link = 'https://warehousespaces.com/request-price.php?property_id='.$row['ListingID'];
+    $sidebar_content .=  "<a class='request_price' href='$link'>Request Price?</a>";
+}
 
 else
 
@@ -523,9 +638,30 @@ else
 		 $thisRate = number_format(floatval(ereg_replace("[^-0-9\.]","",$row['RentalRateMin'])));
 
 
+ $rent_amount = ereg_replace("[^-0-9\.]", "", $row['RentalRateMin']);
+ $space_amount = preg_replace("/[^0-9]/", "", $row['SpaceAvailable']);
+ $rent_final = $rent_amount / $space_amount;
+       if (preg_match('/\Month\b/', $row['RentalRateMin'])) {
+ $rental_rate_min = number_format($rent_final,2) + .01 . '/SF/Month'; 
+ } else {
+ $rental_rate_min = number_format(($rent_amount / 12),2) + .01 . '/SF/Month';        
+
+   }
+ if($row['created_from'] == 'json') {
+$rental_rate_min = number_format($rent_amount / ereg_replace(",", "", $row['SpaceAvailable']),2) + .01 . '/SF/Month';
+}
+
+if($rental_rate_min == '0.00/SF/Month') {
+    $rental_rate_min = substr($rent_amount,0,4) + .01 . '/SF/Month';
+}
+if($row['RentalRateMin'] == 'Negotiable') {
+    $rental_rate_min = '1.00/SF/Month';
+}
+/*if ($row['RentalRateMin'] != "Negotiable") $sidebar_content .=  '<br /><span style="font-weight: normal; font-size: 14px;">($'.number_format(ereg_replace(",", "", $thisRate) / ereg_replace("[^-0-9\.]", "", $row['SpaceAvailable']), 2).'/sf./mo)</span>';*/
+if($rental_rate_min != '0.01/SF/Month') {
 
 	$sidebar_content .=  '$ '.$thisRate.'/mo';
-
+}
 }
 
 						    $get_last_five = substr($row['RentalRateMin'],-5);
@@ -545,22 +681,30 @@ else
  $space_amount = preg_replace("/[^0-9]/", "", $row['SpaceAvailable']);
  $rent_final = $rent_amount / $space_amount;
        if (preg_match('/\Month\b/', $row['RentalRateMin'])) {
- $rental_rate_min = number_format($rent_final,2) . '/SF/Month'; 
+ $rental_rate_min = number_format($rent_final,2) + .01 . '/SF/Month'; 
  } else {
- $rental_rate_min = number_format(($rent_amount / 12),2) . '/SF/Month';        
+ $rental_rate_min = number_format(($rent_amount / 12),2) + .01 . '/SF/Month';        
 
    }
  if($row['created_from'] == 'json') {
-$rental_rate_min = number_format($rent_amount / ereg_replace(",", "", $row['SpaceAvailable']),2) . '/SF/Month';
+$rental_rate_min = number_format($rent_amount / ereg_replace(",", "", $row['SpaceAvailable']),2) + .01 . '/SF/Month';
 }
 
 if($rental_rate_min == '0.00/SF/Month') {
-    $rental_rate_min = substr($rent_amount,0,4) . '/SF/Month';
+    $rental_rate_min = substr($rent_amount,0,4) + .01 . '/SF/Month';
+}
+if($row['RentalRateMin'] == 'Negotiable') {
+    $rental_rate_min = '1.00/SF/Month';
 }
 /*if ($row['RentalRateMin'] != "Negotiable") $sidebar_content .=  '<br /><span style="font-weight: normal; font-size: 14px;">($'.number_format(ereg_replace(",", "", $thisRate) / ereg_replace("[^-0-9\.]", "", $row['SpaceAvailable']), 2).'/sf./mo)</span>';*/
-if ($row['RentalRateMin'] != "Negotiable") $sidebar_content .=  '<br /><span style="font-weight: normal; font-size: 14px;">('.$rental_rate_min.')</span>';
-else $sidebar_content .=  '<br /><span style="font-weight: normal; font-size: 14px;">&nbsp;</span>';
-
+if($rental_rate_min == '0.01/SF/Month') {
+        $link = 'https://warehousespaces.com/request-price.php?property_id='.$row['ListingID'];
+    $sidebar_content .=  "<br /><a class='request_price' href='$link'>Request Price?</a>";
+}
+else if ($row['RentalRateMin'] != "Negotiable") { $sidebar_content .=  '<br /><span style="font-weight: normal; font-size: 14px;">('.$rental_rate_min.')</span>';
+}
+else {$sidebar_content .=  '<br /><span style="font-weight: normal; font-size: 14px;">&nbsp;</span>';
+}
 
 
         	if($row['created_from'] == 'json')
@@ -569,7 +713,7 @@ else $sidebar_content .=  '<br /><span style="font-weight: normal; font-size: 14
 
 			$sidebar_content .= '</div><div class="description">
 
-								<p>'.$row['PropertyType'].'<br>'.$row['PropertySubType'].'<br />'.number_format (ereg_replace("[^-0-9\.]","",$row['SpaceAvailable'])).' square feet</p>
+								<p>'.$row['PropertyType'].'<br>'.$row['PropertySubType'].'<br />'.number_format (ereg_replace("[^-0-9\.]","",$row['SpaceAvailable']) + 5).' square feet</p>
 
 							</div>
 
@@ -591,7 +735,7 @@ else $sidebar_content .=  '<br /><span style="font-weight: normal; font-size: 14
 
 			$sidebar_content .= '</div><div class="description">
 
-								<p>'.$row['PropertyType'].'<br>'.$row['PropertySubType'].'<br />'.number_format (ereg_replace("[^-0-9\.]","",$row['SpaceAvailable'])).' square feet</p>
+								<p>'.$row['PropertyType'].'<br>'.$row['PropertySubType'].'<br />'.number_format (ereg_replace("[^-0-9\.]","",$row['SpaceAvailable']) + 5).' square feet</p>
 
 							</div>
 
@@ -608,6 +752,19 @@ else $sidebar_content .=  '<br /><span style="font-weight: normal; font-size: 14
 			}
 
 		}
+		if(!isset($_GET['rent_property'])) {
+		$k++;
+		}
+	}
+$new_rent++;
+  if ($new_rent == 6){
+//      if(!isset($_GET['sell_property'])) {
+			$custom_img = '<div class="col-sm-12"><a href="https://warehousespaces.com/contact.php"><img class="hidden-xs hidden-md" src="https://warehousespaces.com/images/after-six.jpg" style="width:100%; clear:both; margin-bottom:20px;"></a></div><br /><br />'; 
+			$sidebar_content .= $custom_img;
+  //}
+  }
+	
+	
 }
 		if(!isset($_GET['sell_property']) && !isset($_GET['rent_property'])) {
 
@@ -623,11 +780,12 @@ else $sidebar_content .=  '<br /><span style="font-weight: normal; font-size: 14
 
 	    if(!isset($_GET['rent_property'])) {
 
-    	$sidebar_content .= '<div class="col-sm-12"><h2 style="background-color: #ffffff;">'.ucwords( $q[0].' '.$prop_type.' Warehouse Space for sale').'</h2></div>';
+    	$sidebar_content .= '<div class="col-sm-12" style="clear:both;"><a href="https://warehousespaces.com/contact.php"><img class="hidden-xs hidden-md" style="width:100%;" src="https://warehousespaces.com/images/above-sale.jpg"></a><br /><h2 style="background-color: #ffffff;">'.ucwords( $q[0].' '.$prop_type.' Warehouse Space for sale').'</h2></div>';
+    	$count = 0;
 
 		while ($row = mysqli_fetch_array($result_page_sale)) {
 $new_sqft =   str_replace( ',', '', substr($row['SpaceAvailable'],0, -3));
-if($new_sqft >= 5000) {
+if($new_sqft >= 0) {
 
 		 if (empty($statecode)) $statecode = $row["StateProvCode"];
 
@@ -639,15 +797,16 @@ if($new_sqft >= 5000) {
 
         	if($row['created_from'] == 'json') {
 
-        	$mod_StreetAddress = substr($row['StreetAddress'].($row['SpaceNumber'] ? ', '.$row['SpaceNumber'] : ""), 0, 23);
+        	//$mod_StreetAddress = substr($row['StreetAddress'].($row['SpaceNumber'] ? ', '.$row['SpaceNumber'] : ""), 0, 23);
 
+        	$mod_StreetAddress = $row['StreetAddress'];
 
 
         	if($row['created_from'] == 'json')
 
         	{
 
-        	$sidebar_content .= '<div class="col-sm-4" style="height:500px;"><div class="shop-item"><div class="image">
+        	$sidebar_content .= '<div class="col-sm-4 topheadcustom" style="height:500px;"><h3 class="custom_headblue">FOR SALE</h3><div class="shop-item"><div class="image">
 
 								<a href="/warehouse-for-sale/United-States/'.$row["StateProvCode"].'/'.trim($row['CityName']).'/'.$row['ListingID'].'"><img class="img-polaroid" id="img'.$row['ListingID'].'" height="150" alt="'.$row['StreetAddress'].'" src="';
 
@@ -661,7 +820,7 @@ if($new_sqft >= 5000) {
 
 
 
-        	$sidebar_content .= '<div class="col-sm-4"><div class="shop-item"><div class="image">
+        	$sidebar_content .= '<div class="col-sm-4 topheadcustom"><h3 class="custom_headblue">FOR LEASE</h3><div class="shop-item"><div class="image">
 
 								<a href="/warehouse-for-rent/United-States/'.$row["StateProvCode"].'/'.trim($row['CityName']).'/'.$row['ListingID'].'"><img class="img-polaroid" id="img'.$row['ListingID'].'" height="150" alt="'.$row['StreetAddress'].'" src="';
 
@@ -741,7 +900,10 @@ if($new_sqft >= 5000) {
 
 
 
-if ($row['RentalRateMin'] == "Negotiable") $sidebar_content .=  "Negotiable";
+if ($row['RentalRateMin'] == "Negotiable") {
+    $link = 'https://warehousespaces.com/request-price.php?property_id='.$row['ListingID'];
+    $sidebar_content .=  "<a class='request_price' href='$link'>Request Price?</a>";
+}
 
 else
 
@@ -801,7 +963,7 @@ else $sidebar_content .=  '<br /><span style="font-weight: normal; font-size: 14
 
 			$sidebar_content .= '</div><div class="description">
 
-								<p>'.$row['PropertyType'].'<br>'.$row['PropertySubType'].'<br />'.number_format (ereg_replace("[^-0-9\.]","",$row['SpaceAvailable'])).' square feet</p>
+								<p>'.$row['PropertyType'].'<br>'.$row['PropertySubType'].'<br />'.number_format (ereg_replace("[^-0-9\.]","",$row['SpaceAvailable']) + 5).' square feet</p>
 
 							</div>
 
@@ -823,7 +985,7 @@ else $sidebar_content .=  '<br /><span style="font-weight: normal; font-size: 14
 
 			$sidebar_content .= '</div><div class="description">
 
-								<p>'.$row['PropertyType'].'<br>'.$row['PropertySubType'].'<br />'.number_format (ereg_replace("[^-0-9\.]","",$row['SpaceAvailable'])).' square feet</p>
+								<p>'.$row['PropertyType'].'<br>'.$row['PropertySubType'].'<br />'.number_format (ereg_replace("[^-0-9\.]","",$row['SpaceAvailable']) + 5).' square feet</p>
 
 							</div>
 
@@ -840,6 +1002,12 @@ else $sidebar_content .=  '<br /><span style="font-weight: normal; font-size: 14
 			}
 
 		 }
+$count++;
+  if ($count >= 3){
+      if(!isset($_GET['sell_property'])) {
+    break;
+      }
+  }
 
 }
 
@@ -874,7 +1042,6 @@ else $sidebar_content .=  '<br /><span style="font-weight: normal; font-size: 14
 		$patterns = array("/'/", "/\"/");
 
 
-
 		while ($row = mysqli_fetch_array($result)) {        
 
     		if ($row["Latitude"] != "")	{
@@ -885,8 +1052,22 @@ else $sidebar_content .=  '<br /><span style="font-weight: normal; font-size: 14
 
         	{
 
-
-
+            $link_address = '<a href="/warehouse-for-sale/United-States/'.$row['StateProvCode']."/".$row['CityName']."/".$row['ListingID'].'">'.str_replace(array('\'', '"'), '', $row['StreetAddress']).'</a>'; 
+                $markers_script_new .=  "{lat: ".$row['Latitude'].", lng: ".$row['Longitude']. "},";
+                $markers_script_new_map .= "[".$row['Longitude'].", ".$row['Latitude'].", 'https://warehousespaces.com/images/blue-new.png','<div><div class=\"row-fluid\"><a href=\"/dev/warehouse-for-sale/United-States/".$row['StateProvCode']."/".$row['CityName']."/".$row['ListingID']."\">".preg_replace($patterns, '', $row['StreetAddress'].", ".$row['CityName'])."</a><br />".$row['SpaceAvailableTotal']." sq. ft.</div></div>'],";
+                $mapbox_markers .= "{
+            'type': 'Feature',
+            'geometry': {
+              'type': 'Point',
+              'coordinates': [".$row['Longitude'].", ".$row['Latitude']."]
+            },
+            'properties': {
+              'title': '',
+              'description': '".$link_address."'
+            }
+          },
+";
+                
 				$markers_script .= 'var myLatlng = new google.maps.LatLng('.$row["Latitude"].', '.$row["Longitude"].'); var marker = new google.maps.Marker({position: myLatlng, title: "'.preg_replace($patterns, '', $row['StreetAddress'].' <Br> '.$row['CityName'].' <br> Propertytype: '.$row['PropertyType'].' | '.$row['PropertySubType']).'", map: map });'.
 
 				" var contentTxt = '<div><div class=\"row-fluid\"><a href=\"/warehouse-for-sale/United-States/".$row['StateProvCode']."/".$row['CityName']."/".$row['ListingID']."\">".preg_replace($patterns, '', $row['StreetAddress'].", ".$row['CityName'])."</a><br />".$row['SpaceAvailableTotal']." sq. ft.</div></div>';".
@@ -912,7 +1093,23 @@ else $sidebar_content .=  '<br /><span style="font-weight: normal; font-size: 14
 			else
 
 			{
+             $link_address = '<a href="/warehouse-for-sale/United-States/'.$row['StateProvCode']."/".$row['CityName']."/".$row['ListingID'].'">'.str_replace(array('\'', '"'), '', $row['StreetAddress']).'</a>'; 
 
+                $markers_script_new .=  "{lat: ".$row['Latitude'].", lng: ".$row['Longitude']. "},";
+                $markers_script_new_map .= "[".$row['Longitude'].", ".$row['Latitude'].", 'https://warehousespaces.com/images/blue-new.png','<div><div class=\"row-fluid\"><a href=\"/dev/warehouse-for-sale/United-States/".$row['StateProvCode']."/".$row['CityName']."/".$row['ListingID']."\">".preg_replace($patterns, '', $row['StreetAddress'].", ".$row['CityName'])."</a><br />".$row['SpaceAvailableTotal']." sq. ft.</div></div>'],";
+                $mapbox_markers .= "{
+            'type': 'Feature',
+            'geometry': {
+              'type': 'Point',
+              'coordinates': [".$row['Longitude'].", ".$row['Latitude']."]
+            },
+            'properties': {
+              'title': '',
+              'description': '".$link_address."'
+            }
+          },
+";
+                
 				$markers_script .= 'var myLatlng = new google.maps.LatLng('.$row["Latitude"].', '.$row["Longitude"].'); var marker = new google.maps.Marker({position: myLatlng, title: "'.preg_replace($patterns, '', $row['StreetAddress'].' <Br> '.$row['CityName'].' <br> Propertytype: '.$row['PropertyType'].' | '.$row['PropertySubType']).'", map: map });'.
 
 				" var contentTxt = '<div><div class=\"row-fluid\"><a href=\"/warehouse-for-rent/United-States/".$row['StateProvCode']."/".$row['CityName']."/".$row['ListingID']."\">".preg_replace($patterns, '', $row['StreetAddress'].", ".$row['CityName'])."</a><br />".$row['SpaceAvailableTotal']." sq. ft.</div></div>';".
@@ -944,6 +1141,77 @@ else $sidebar_content .=  '<br /><span style="font-weight: normal; font-size: 14
 		}
 
 
+		while ($row = mysqli_fetch_array($result_sale)) {        
+
+    		if ($row["Latitude"] != "")	{
+
+
+
+        	if($row['created_from'] == 'json')
+
+        	{
+
+
+                $markers_script_new .=  "{lat: ".$row['Latitude'].", lng: ".$row['Longitude']. "},";
+                $markers_script_new_map .= "[".$row['Longitude'].", ".$row['Latitude'].", 'https://warehousespaces.com/images/blue-new.png','<div><div class=\"row-fluid\"><a href=\"/dev/warehouse-for-sale/United-States/".$row['StateProvCode']."/".$row['CityName']."/".$row['ListingID']."\">".preg_replace($patterns, '', $row['StreetAddress'].", ".$row['CityName'])."</a><br />".$row['SpaceAvailableTotal']." sq. ft.</div></div>'],";                
+				$markers_script .= 'var myLatlng = new google.maps.LatLng('.$row["Latitude"].', '.$row["Longitude"].'); var marker = new google.maps.Marker({position: myLatlng, title: "'.preg_replace($patterns, '', $row['StreetAddress'].' <Br> '.$row['CityName'].' <br> Propertytype: '.$row['PropertyType'].' | '.$row['PropertySubType']).'", map: map });'.
+
+				" var contentTxt = '<div><div class=\"row-fluid\"><a href=\"/warehouse-for-sale/United-States/".$row['StateProvCode']."/".$row['CityName']."/".$row['ListingID']."\">".preg_replace($patterns, '', $row['StreetAddress'].", ".$row['CityName'])."</a><br />".$row['SpaceAvailableTotal']." sq. ft.</div></div>';".
+
+				" marker.infoWindow = new google.maps.InfoWindow({
+
+				  content: contentTxt
+
+				});".
+
+				" google.maps.event.addListener(marker,'click',function() {
+
+				  infoClose();
+
+				  infoList.push(this);
+
+				  this.infoWindow.open(map,this);
+
+				});";
+
+			}
+
+			else
+
+			{
+                $markers_script_new .=  "{lat: ".$row['Latitude'].", lng: ".$row['Longitude']. "},";
+                $markers_script_new_map .= "[".$row['Longitude'].", ".$row['Latitude'].", 'https://warehousespaces.com/images/blue-new.png','<div><div class=\"row-fluid\"><a href=\"/dev/warehouse-for-sale/United-States/".$row['StateProvCode']."/".$row['CityName']."/".$row['ListingID']."\">".preg_replace($patterns, '', $row['StreetAddress'].", ".$row['CityName'])."</a><br />".$row['SpaceAvailableTotal']." sq. ft.</div></div>'],";                
+                
+				$markers_script .= 'var myLatlng = new google.maps.LatLng('.$row["Latitude"].', '.$row["Longitude"].'); var marker = new google.maps.Marker({position: myLatlng, title: "'.preg_replace($patterns, '', $row['StreetAddress'].' <Br> '.$row['CityName'].' <br> Propertytype: '.$row['PropertyType'].' | '.$row['PropertySubType']).'", map: map });'.
+
+				" var contentTxt = '<div><div class=\"row-fluid\"><a href=\"/warehouse-for-rent/United-States/".$row['StateProvCode']."/".$row['CityName']."/".$row['ListingID']."\">".preg_replace($patterns, '', $row['StreetAddress'].", ".$row['CityName'])."</a><br />".$row['SpaceAvailableTotal']." sq. ft.</div></div>';".
+
+				" marker.infoWindow = new google.maps.InfoWindow({
+
+				  content: contentTxt
+
+				});".
+
+				" google.maps.event.addListener(marker,'click',function() {
+
+				  infoClose();
+
+				  infoList.push(this);
+
+				  this.infoWindow.open(map,this);
+
+				});";
+
+
+
+			}
+
+
+
+    		}
+
+		}
+
 
 		//////////////////////////////////////////////////////
 
@@ -960,9 +1228,10 @@ else $sidebar_content .=  '<br /><span style="font-weight: normal; font-size: 14
 
 
 	    $result->data_seek(0);
+	    $result_sale->data_seek(0);
 
 	    $firstLatLng = "";
-
+        $firstLatLngNew = '';
 
 
 	    while (!$firstLatLng && $onerow = $result->fetch_assoc())
@@ -976,12 +1245,31 @@ else $sidebar_content .=  '<br /><span style="font-weight: normal; font-size: 14
     
 
 			if ($onerow["Latitude"] != "" && $onerow["Longitude"] != "") $firstLatLng = 'new google.maps.LatLng('.$onerow["Latitude"].','.$onerow["Longitude"].')';
+			$firstLatLngNew = "[".$onerow['Longitude'].", ".$onerow['Latitude']."]";
 
 		}
 
+        if(empty($firstLatLng)) {
+           
+	    while (!$firstLatLng && $saleonerow = $result_sale->fetch_assoc()) {
+    		$statecode = $saleonerow['StateProvCode'];
 
+    		if (!isset($cityname)) $cityname = $saleonerow['CityName'];
 
-		if (!firstLatLng) $firstLatLng = 'new google.maps.LatLng(33.800903676512,-118.27401280403)';
+    
+
+			if ($saleonerow["Latitude"] != "" && $saleonerow["Longitude"] != "") $firstLatLng = 'new google.maps.LatLng('.$saleonerow["Latitude"].','.$saleonerow["Longitude"].')';
+$firstLatLngNew = "[-118.27401280403, 33.800903676512]";
+		}
+            
+        } 
+        
+        if(empty($firstLatLng)) {
+            $firstLatLng = 'new google.maps.LatLng(33.800903676512,-118.27401280403)';
+$firstLatLngNew = "[-118.27401280403, 33.800903676512]";
+}
+
+//		if (!$firstLatLng) $firstLatLng = 'new google.maps.LatLng(33.800903676512,-118.27401280403)';
 
 
 
@@ -998,6 +1286,7 @@ else $sidebar_content .=  '<br /><span style="font-weight: normal; font-size: 14
 	{
 
 		$firstLatLng = 'new google.maps.LatLng(33.800903676512,-118.27401280403)';
+$firstLatLngNew = "[-118.27401280403, 33.800903676512]";
 
 		//$sidebar_content .= "<strong>Your search did not match any properties.</strong><br /><br /><a href=\"https://warehousespaces.com\">Start a New Search</a>"; 
 
@@ -1027,7 +1316,7 @@ catch(exception $e) { var_dump($e);}
 
 function list_prop_types(){
 
-	$sql_list_prop_types = "select distinct PropertyType, PropertySubType from warehouse_listing WHERE ListingIsActive = 'y' order by PropertyType, PropertySubType;";
+	$sql_list_prop_types = "select distinct PropertyType, PropertySubType from warehouse_listing WHERE SpaceAvailable >= 5000 AND ListingIsActive = 'y' order by PropertyType, PropertySubType;";
 
 
 
@@ -1123,7 +1412,7 @@ function list_prop_types(){
 
 <?php
 
-$city_sql = "select distinct cityname, StateProvCode from warehouse_listing where ListingIsActive = 'y' AND trim(cityname) <> '' and StateProvCode = '".trim($q[0])."' order by cityname";
+$city_sql = "select distinct cityname, StateProvCode from warehouse_listing where SpaceAvailable >= 5000 AND ListingIsActive = 'y' AND trim(cityname) <> '' and StateProvCode = '".trim($q[0])."' order by cityname";
 
 
 
@@ -1141,8 +1430,9 @@ if ($city_count < 1)
 
 ?>				
 
-						<div class="row-fluid" id="map-canvas"></div>
-
+<!--<div class="row-fluid" id="map-canvas"></div>-->
+<div id="map" class="row-fluid map"></div>
+<br /><div class="clear"></div>
 <?php } ?>
 
 						<div class="clear"></div>
@@ -1158,12 +1448,11 @@ if ($city_count < 1)
 //////////////////////////////////////////////////////////////////////////////////
 
 -->	
-
 						<div class="row-fluid">
 
 							<form class="form-horizontal" role="form" id="filter-form" method="get" action="<? echo preg_replace('/\/page\d*/', '', $_SERVER['REQUEST_URI']); ?>">
 
-								<center><strong>Filter Results by: </strong></center><br />
+								<!--<center><strong>Filter Results by: </strong></center><br />-->
 
 								<div class="form-group col-xs-12 col-sm-4 col-lg-4 custom_width">
 
@@ -1270,7 +1559,7 @@ if ($city_count < 1)
 						<p>&nbsp;</p>
 
 <!-- Product Summary & Options -->
-
+<a href="https://warehousespaces.com/contact.php"><img class="" style="width:100%;" src="https://warehousespaces.com/images/city-left.jpg"></a> <br /><br />
 	    			<div style="background: none repeat scroll 0% 0% padding-box #FFF; box-shadow: 0px 1px #FFF inset, 0px 0px 8px #C8CFE6; padding-left: 15px; padding-right: 15px;">
 
 	    				<h2 style="color: black;">Free Property Report</h2>
@@ -1363,7 +1652,7 @@ if ($city_count < 1)
 
 						<p>&nbsp;</p>
 
-						<div class="row-fluid">
+						<div class="row-fluid hidden-xs">
 
 <?
 
@@ -1982,7 +2271,469 @@ if ($rec_count > 0 && $num_of_pages > 1)
 				</div>
 
 			</div>
+        <div class="section">
 
+	    	<div class="container">
+
+				<div class="row">
+
+<div class="col-sm-12">
+<div class="row-fluid visible-xs ">
+
+<?
+
+$city_sql = "select * from city_descriptions where CityName ='".trim($q[0])."' AND StateProvCode = '".$statecode."'";
+
+
+
+$city_result = $mysqli->query($city_sql);
+
+    
+
+$city_count = $city_result->num_rows;
+
+    
+
+if ($city_count > 0)
+
+{
+
+    $city_row = mysqli_fetch_array($city_result);
+
+    
+
+//  if ($city_row['CityDesc']) echo "<h3>".trim($q[0])." Warehouse Market</h3>".$city_row['CityDesc']."<br />"; 
+
+    $sql_prop_city_count_rent = "select SpaceAvailable, RentalRateMin, created_from from warehouse_listing where (CityName = '".trim(str_replace("-", " ", $search))."' OR StateProvCode = '".trim($search)."')".($q[1] ? "and (PostalCode = '".trim($q[1])."' OR StateProvCode = '".trim($q[1])."') " : "")."AND ListingIsActive = 'y' and created_from !='json'";
+
+
+
+    $listing_result_rent = $mysqli->query($sql_prop_city_count_rent);
+
+    $num_rows_rent = $listing_result_rent->num_rows;
+
+
+
+    $sql_prop_city_count_sale = "select SpaceAvailable, RentalRateMin, created_from from warehouse_listing where (CityName like '%".trim(str_replace("-", " ", $search))."' OR StateProvCode like '%".trim($search)."')".($q[1] ? "and (PostalCode = '".trim($q[1])."' OR StateProvCode = '".trim($q[1])."') " : "")."AND ListingIsActive = 'y' and created_from = 'json'";
+
+    $listing_result_sale = $mysqli->query($sql_prop_city_count_sale);
+
+    $num_rows_sale = $listing_result_sale->num_rows;
+
+
+
+$desc = "
+
+".trim($q[0])." currently features warehouses with (".$num_rows_rent.") for rent and (".$num_rows_sale.") for sale. 
+
+Browse through all of the available listings for industrial space and our agents will be happy to send detailed 
+
+property reports on any building you would like to review. Our ".trim($q[0])." commercial real estate 
+
+office handles both lease and purchase transactions with complimentary advisory services to 
+
+review agreements, leverage opportunities and schedule tours of available properties.";
+
+
+
+//  if ($city_row['CityDesc']) echo "<h3>".trim($q[0])." Warehouse Market</h3>".$city_row['CityDesc']."<br />"; 
+
+    if ($city_row['CityDesc']) echo "<h3>".trim($q[0])." Warehouse Market</h3>".$desc."<br />"; 
+
+}   
+
+    
+
+$city_sql = "select distinct cityname, StateProvCode, created_from from warehouse_listing where ListingIsActive = 'y' AND trim(cityname) <> '' and StateProvCode = '".trim($q[0])."' order by cityname";
+
+
+
+$city_result = $mysqli->query($city_sql);
+
+    
+
+$city_count = $city_result->num_rows;
+
+$uri_path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+$uri_segments = explode('/', $uri_path);
+
+
+
+if ($city_count > 0)
+
+{
+
+    echo "<h3>Cities Covered in ".strtoupper(trim($q[0]))."</h3>";
+
+        
+
+    while ($city_row = mysqli_fetch_array($city_result))
+
+        if($uri_segments[1] == 'warehouse-for-sale')
+
+        {       
+
+        echo "<a href=\"/warehouse-for-sale/United-States/".$city_row['StateProvCode']."/".trim($city_row['cityname'])."\">".trim($city_row['cityname'])."</a><br />"; 
+
+        }
+
+        else
+
+        {
+
+        echo "<a href=\"/warehouse-for-rent/United-States/".$city_row['StateProvCode']."/".trim($city_row['cityname'])."\">".trim($city_row['cityname'])."</a><br />"; 
+
+
+
+        }
+
+    
+
+    echo "<br />";
+
+} 
+
+
+
+    $min_rate = 0;
+
+    $max_rate = 0;
+
+    $min_sqft = 0;
+
+    $max_sqft = 0;
+
+    $total_sqft = 0;
+
+    $total_rate = 0;
+
+    $counter  = 0;
+
+    $counter_sale  = 0;
+
+$states = array(
+
+    'Alabama'=>'AL',
+
+    'Alaska'=>'AK',
+
+    'Arizona'=>'AZ',
+
+    'Arkansas'=>'AR',
+
+    'California'=>'CA',
+
+    'Colorado'=>'CO',
+
+    'Connecticut'=>'CT',
+
+    'Delaware'=>'DE',
+
+    'District of Columbia'=>'DC',
+
+    'Florida'=>'FL',
+
+    'Georgia'=>'GA',
+
+    'Hawaii'=>'HI',
+
+    'Idaho'=>'ID',
+
+    'Illinois'=>'IL',
+
+    'Indiana'=>'IN',
+
+    'Iowa'=>'IA',
+
+    'Kansas'=>'KS',
+
+    'Kentucky'=>'KY',
+
+    'Louisiana'=>'LA',
+
+    'Maine'=>'ME',
+
+    'Maryland'=>'MD',
+
+    'Massachusetts'=>'MA',
+
+    'Michigan'=>'MI',
+
+    'Minnesota'=>'MN',
+
+    'Mississippi'=>'MS',
+
+    'Missouri'=>'MO',
+
+    'Montana'=>'MT',
+
+    'Nebraska'=>'NE',
+
+    'Nevada'=>'NV',
+
+    'New Hampshire'=>'NH',
+
+    'New Jersey'=>'NJ',
+
+    'New Mexico'=>'NM',
+
+    'New York'=>'NY',
+
+    'North Carolina'=>'NC',
+
+    'North Dakota'=>'ND',
+
+    'Ohio'=>'OH',
+
+    'Oklahoma'=>'OK',
+
+    'Oregon'=>'OR',
+
+    'Pennsylvania'=>'PA',
+
+    'Rhode Island'=>'RI',
+
+    'South Carolina'=>'SC',
+
+    'South Dakota'=>'SD',
+
+    'Tennessee'=>'TN',
+
+    'Texas'=>'TX',
+
+    'Utah'=>'UT',
+
+    'Vermont'=>'VT',
+
+    'Virginia'=>'VA',
+
+    'Washington'=>'WA',
+
+    'West Virginia'=>'WV',
+
+    'Wisconsin'=>'WI',
+
+    'Wyoming'=>'WY',
+
+);
+
+
+
+                if(!empty($states[$q[0]]))
+
+                {
+
+                    $search = $states[$q[0]];
+
+                }
+
+                else
+
+                {
+
+                    $search = $q[0];
+
+                }
+
+
+
+//$sql_prop = "select SpaceAvailable, RentalRateMin from listings where (CityName = '".trim(str_replace("-", " ", $search)).
+
+//  $sql_prop = "select SpaceAvailable, RentalRateMin from warehouse_listing where CityName = '".trim($q[0])."' AND ListingIsActive = 'y'";
+
+$sql_prop = "select SpaceAvailable, RentalRateMin, created_from from warehouse_listing where (CityName = '".trim(str_replace("-", " ", $search))."' OR StateProvCode = '".trim($search)."')".($q[1] ? "and (PostalCode = '".trim($q[1])."' OR StateProvCode = '".trim($q[1])."') " : "")."AND ListingIsActive = 'y'";
+
+
+
+    try{
+
+        $listing_result = $mysqli->query($sql_prop);
+
+    }
+
+    catch(exception $e) { var_dump($e); }
+
+        
+
+    $num_rows = $listing_result->num_rows;
+
+
+
+    while ($listing_row = mysqli_fetch_array($listing_result)) 
+
+    {
+
+        $int_sqft = intval(preg_replace("/[^0-9\.]/", "", $listing_row['SpaceAvailable']));
+
+        
+
+        if ($listing_row['RentalRateMin'] == "Negotiable") $int_rate = 0;
+
+        else
+
+        {
+
+            if (strpos($listing_row['RentalRateMin'], 'Year') !== false)
+
+            {
+
+                if (strpos($listing_row['RentalRateMin'], '/SF/Year')) $int_rate = floatval(floatval(substr($listing_row['RentalRateMin'], 1)) / 12);
+
+                else $int_rate = floatval(floatval(substr($listing_row['RentalRateMin'], 1)/12) / $int_sqft);
+
+            }
+
+            elseif (strpos($listing_row['RentalRateMin'], 'SF') !== false) 
+
+                $int_rate = floatval(floatval(substr($listing_row['RentalRateMin'], 1)));
+
+            else
+
+                $int_rate = floatval(floatval(substr($listing_row['RentalRateMin'], 1)) / $int_sqft);
+
+        }
+
+        
+
+        $total_sqft += $int_sqft; 
+
+        $total_rate += $int_rate;
+
+
+
+        if (!$min_sqft || $int_sqft < $min_sqft) $min_sqft = $int_sqft;
+
+        if (!$max_sqft || $int_sqft > $max_sqft) $max_sqft = $int_sqft;
+
+        
+
+        if ((!$min_rate || $int_rate < $min_rate) && $int_rate > 0) $min_rate = $int_rate;
+
+        if ((!$max_rate || $int_rate > $max_rate) && $int_rate > 0) $max_rate = $int_rate;
+
+            
+
+        if ($int_rate) $counter++;
+
+    }
+
+
+
+
+
+    while ($listing_row_sale = mysqli_fetch_array($listing_result_sale)) 
+
+    {
+
+        $int_sqft_sale = intval(preg_replace("/[^0-9\.]/", "", $listing_row_sale['SpaceAvailable']));
+
+        
+
+        if ($listing_row_sale['RentalRateMin'] == "Negotiable") $int_rate_sale = 0;
+
+        else
+
+        {
+
+            if (strpos($listing_row_sale['RentalRateMin'], 'Year') !== false)
+
+            {
+
+                if (strpos($listing_row_sale['RentalRateMin'], '/SF/Year')) $int_rate_sale = floatval(floatval(substr($listing_row_sale['RentalRateMin'], 1)) / 12);
+
+                else $int_rate_sale = floatval(floatval(substr($listing_row_sale['RentalRateMin'], 1)/12) / $int_sqft_sale);
+
+            }
+
+            elseif (strpos($listing_row_sale['RentalRateMin'], 'SF') !== false) 
+
+                $int_rate_sale = floatval(floatval(substr($listing_row_sale['RentalRateMin'], 1)));
+
+            else
+
+                $int_rate_sale = floatval(floatval(substr($listing_row_sale['RentalRateMin'], 1)) / $int_sqft_sale);
+
+        }
+
+        
+
+        $total_sqft_sale += $int_sqft_sale; 
+
+        $total_rate_sale += $int_rate_sale;
+
+
+
+        if (!$min_sqft_sale || $int_sqft_sale < $min_sqft_sale) $min_sqft_sale = $int_sqft_sale;
+
+        if (!$max_sqft_sale || $int_sqft_sale > $max_sqft_sale) $max_sqft_sale = $int_sqft_sale;
+
+        
+
+        if ((!$min_rate_sale || $int_rate_sale < $min_rate_sale) && $int_rate_sale > 0) $min_rate_sale = $int_rate_sale;
+
+        if ((!$max_rate_sale || $int_rate_sale > $max_rate_sale) && $int_rate_sale > 0) $max_rate_sale = $int_rate_sale;
+
+            
+
+        if ($int_rate_sale) $counter_sale++;
+
+    }
+
+
+
+
+
+    $total_sqft_aall  = ($total_sqft + $total_sqft_sale);
+
+    $total_rate_all = ($total_rate + $total_rate_sale);
+
+if ($total_sqft_aall > 0)
+
+{
+
+echo "<h3>".trim($q[0])." Warehouse Stats</h3>";
+
+echo "Total available listings: ". ($num_rows + $num_rows_sale)."<br />Total square footage: ".number_format($total_sqft_aall)." SF";
+
+
+
+echo "<br><br>" .  "Total for rent : " .$num_rows .  "<br />Average asking rate: \$".number_format($total_rate/$counter, 2)." sf/mo<br />Average size available: ".number_format($total_sqft / $num_rows)." SF<br />Price range: \$".number_format($min_rate, 2)." sf/mo to \$".number_format($max_rate, 2)." sf/mo<br /><br />";
+
+
+
+echo   "Total for sale : " .$num_rows_sale .  "<br />Average asking rate: Negotiable<br />Average size available: ".number_format($total_sqft_sale / $num_rows_sale)." SF<br />Price range: Negotiable <br /><br />";
+
+
+
+
+
+echo "<h3>Available Layouts</h3>";
+
+
+
+    $sql_prop = "select distinct PropertySubType, count(*) AS num from warehouse_listing where CityName = '".trim($q[0])."' AND ListingIsActive = 'y' GROUP BY PropertySubType";
+
+
+
+    try{
+
+        $listing_result = $mysqli->query($sql_prop);
+
+    }
+
+    catch(exception $e) { var_dump($e); }
+
+
+
+    while ($listing_row = mysqli_fetch_array($listing_result)) echo $listing_row['PropertySubType'].": ".$listing_row['num']." Listing".($listing_row['num'] > 1 ? "s" : "")."<br />";
+
+}
+
+?>
+
+                        </div>
+</div></div></div></div>
 	    </div>
 
 <div class="row-fluid" >	
@@ -1994,6 +2745,12 @@ if ($rec_count > 0 && $num_of_pages > 1)
     </div>
 
 </div>
+
+<?php 
+//echo "Firstlat long : " . $firstLatLngNew . "<br />";
+ $new_marker =  '[' . $markers_script_new.']';
+ $new_map_marker = '[' . $markers_script_new_map.']';
+?>
 
 
 
@@ -2127,6 +2884,7 @@ $("#submit-contact-form").click(function () {
 
 		map.controls[google.maps.ControlPosition.BOTTOM_RIGHT].push(controlDiv);
 
+		
 		}
 
      // google.maps.event.addDomListener(window, 'load', initialize);
@@ -2235,7 +2993,7 @@ $(document).ready(function(){
 
     //initialize google map on document load;
 
-    initialize();
+    //initialize();
 
     
 
@@ -2623,12 +3381,137 @@ function filter_results(){
 
 }
 
+
+
+$(document).ready(function(){
+      $('.marginxs').each(function(){
+            // get current ul
+            var $ul = $(this);
+            // get array of list items in current ul
+            var $liArr = $ul.children('div.col-md-3');
+            // sort array of list items in current ul randomly
+            $liArr.sort(function(a,b){
+                  // Get a random number between 0 and 10
+                  var temp = parseInt( Math.random()*4 );
+                  // Get 1 or 0, whether temp is odd or even
+                  var isOddOrEven = temp%2;
+                  // Get +1 or -1, whether temp greater or smaller than 5
+                  var isPosOrNeg = temp>5 ? 1 : -1;
+                  // Return -1, 0, or +1
+                  return( isOddOrEven*isPosOrNeg );
+            })
+            // append list items to ul
+            .appendTo($ul);            
+      });
+});
 </script>
+    <script>
+      mapboxgl.accessToken = 'pk.eyJ1IjoidGFmZmVyY29tcHV0ZXJzIiwiYSI6ImNrYWN2dXpocDBhc3MyeHByb29nc2YybjIifQ.cQO_ys5wOJFh04l58RPnHg';
+
+      var geojson = {
+        'type': 'FeatureCollection',
+        'features': [<?=$mapbox_markers?>]
+      };
+
+      var map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/light-v10',
+        center: <?=$firstLatLngNew;?>,
+        zoom: 12
+      });
+
+      // add markers to map
+      geojson.features.forEach(function(marker) {
+        // create a HTML element for each feature
+        var el = document.createElement('div');
+        el.className = 'marker';
+
+        // make a marker for each feature and add it to the map
+        new mapboxgl.Marker(el)
+          .setLngLat(marker.geometry.coordinates)
+          .setPopup(
+            new mapboxgl.Popup({ offset: 25 }) // add popups
+              .setHTML(
+                '<h3>' +
+                  marker.properties.title +
+                  '</h3><p>' +
+                  marker.properties.description +
+                  '</p>'
+              )
+          )
+          .addTo(map);
+      });
+// Add zoom and rotation controls to the map.
+map.addControl(new mapboxgl.NavigationControl());
+
+    </script>
 
 <? 
 
 $mysqli->close();
+?>
+		<div class="section section-white homsec newhomesection">
+	      <div class="container">
+	        <h1>What our customers are saying about us</h1>
+	        <div class="col-md-12 row marginxs">
+	            <div class="col-md-3">
+	                <img class="starimage"  src="/dev/images/stars-5.png"><br />
+	                <h3>Highly Recommended</h3>
+	                <p>Worked with their team and they connected me with a expert that asisted us find a great space. Would recommend them!</p>
+	                <h6>Steve McQuinn</h6>
+	            </div>
+	            <div class="col-md-3">
+	                <img class="starimage"  src="/dev/images/stars-5.png"><br />
+	                <h3>Wonderful Experience</h3>
+	                <p>They offered a great service, like no other that I have experienced. Their staff is very friendly and always willing to help. Thank you.</p>
+	                <h6>Richard Williams</h6>
+	            </div>
+	            <div class="col-md-3">
+	                <img class="starimage"  src="/dev/images/stars-5.png"><br />
+	                <h3>Saved Us Money</h3>
+	                <p>Worked with them and they helped us find a local expert that not only saved us valuable time and money. Great help.</p>
+	                <h6>Roy Silverstein</h6>
+	            </div>
+	            <div class="col-md-3">
+	                <img class="starimage" src="/dev/images/stars-5.png"><br />
+	                <h3>Outstanding</h3>
+	                <p>Expert assistance find using us a great location. Showed us serveral options and found a great place, at the right price.</p>
+	                <h6>Michael Halper</h6>
+	            </div>
+	            
+	            
+	            <div class="col-md-3">
+	                <img class="starimage" src="/dev/images/stars-5.png"><br />
+	                <h3>Great Service</h3>
+	                <p>Under a short timeline they emailed options, arranged tours and helped in negotiotions. Excellent service, I highly recommend.</p>
+	                <h6>Mark Halper</h6>
+	            </div>	            
 
+	            <div class="col-md-3">
+	                <img class="starimage" src="/dev/images/stars-5.png"><br />
+	                <h3>Excellent Service</h3>
+	                <p>They made finding a new space easy. They were determind to finiding me a space that met my needs and budget. Great job!</p>
+	                <h6>Richard Wattsr</h6>
+	            </div>	            
+	            <div class="col-md-3">
+	                <img class="starimage" src="/dev/images/stars-5.png"><br />
+	                <h3>Very Helpful</h3>
+	                <p>I can't imagine finding space without your assistance. Helped us find a very nice space. Will use your service in the again.</p>
+	                <h6>Mark Stein</h6>
+	            </div>	            
+	        
+	            <div class="col-md-3">
+	                <img class="starimage" src="/dev/images/stars-5.png"><br />
+	                <h3>Exteremly Helpful</h3>
+	                <p>They were exteremly helpful throughout our search. Always came up-with new options. Really recommend them!</p>
+	                <h6>Michael Stember</h6>
+	            </div>	            
+	        
+	        </div>
+
+	      </div>
+	    </div>
+<?
 include 'footer.php'; 
 
 ?>

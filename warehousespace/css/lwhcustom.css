@@ -15,7 +15,7 @@ table{border-spacing:10px;width:100%;font-weight:normal;}
 #main-body{min-height:100%;height:100%;text-align:center;}
 #heading{background:rgba(0, 0, 0, 0.65);color:#FFF;margin-top:50px;padding:5px;}
 #search-div{min-height:400px;padding-top:15px;margin-top:5px;background:url("../images/bg-image4.jpg") no-repeat center;align:center;}
-#filter-form{border-top:none;color:#0088cc;}
+#filter-form{border-top:none;color:#26619c; background:none repeat scroll 0% 0% #fff;}
 #search-field{width:60%;height:40px;}
 #search-field2{width:100px;height:40px;}
 #search-form{height:200px;margin-top:100px;}
@@ -73,6 +73,8 @@ min-height:200px;height:200px;}
 #contact-small-box{margin-top:100px;padding:13px;background:#FFF;font-family:BitstreamVeraSans-Bold, Arial bold;font-weight:600;font-size:14px;opacity:90%;height:110px;vertical-align:middle;-webkit-border-radius:7px;-moz-border-radius:7px;border-radius:7px;}
 #contact-form-div{height:370px;margin-top:2px;padding:15px;background:#E2E2EA;-webkit-border-radius:7px;-moz-border-radius:7px;border-radius:7px;-webkit-box-shadow:5px 4px 8px rgba(0, 0, 0, 0.38);-moz-box-shadow:5px 4px 8px rgba(0, 0, 0, 0.38);box-shadow:5px 4px 8px rgba(0, 0, 0, 0.38);position:fixed;top:100px;right:20px;}
 input, button{border:1px solid grey;-webkit-box-shadow:5px 4px 8px rgba(0, 0, 0, 0.38);-moz-box-shadow:5px 4px 8px rgba(0, 0, 0, 0.38);box-shadow:5px 4px 8px rgba(0, 0, 0, 0.38);}
-@media (min-width:1200px){.custom_width{width:31%;padding:0;}
+@media (min-width:1200px){.custom_width{width:28%;padding:0; background:none repeat scroll 0% 0% #fff !important; margin-left:0px !important; margin-right:0px !important; padding-bottom:20px;}
+
+.custom_width_btn { width:16%; } 
 }
 \

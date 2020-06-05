@@ -29,5 +29,32 @@
 		    	</div>
 		    </div>
 	    </div>
+	    
+<script type="text/javascript">
+    function randomItem(){
+    console.log('called random');
+    for (var i = 0; i < 4; i++){
+        var length = $(".homsec .marginxs > div.col-md-3:not(:visible)").length;
+        var random = Math.floor(Math.random() * length);
+        $(".homsec .marginxs > div.col-md-3:not(:visible)").eq(random).show();
+    }
+}
+
+	$(document).ready(function() {
+	        console.log('test');
+	       $( ".singleWarehouseInfo a" ).click(function() {
+            $("#inquireModal").css('display','block');
+           });
+	       $( ".close" ).click(function() {
+	           $('.modal-backdrop').remove();
+            $("#inquireModal").css('display','none');
+           });
+
+
+	    $(".homsec .marginxs > div.col-md-3").hide();
+        randomItem();
+	});
+
+</script>	    
     </body>
 </html>	    		    

@@ -223,7 +223,8 @@ header('Location:'. $redirect_url);
         <script src="/js/template.js"></script>
         <script src="/js/bootstrap3-typeahead.js"></script>
         <script src="/js/jquery.flexslider.js"></script>
-        
+<script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.js"></script>
+            
         <script>
 		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -281,6 +282,17 @@ else
 }
  ?> 
  <link rel="canonical" href="<?php echo $url;?>">
+ <!-- Hotjar Tracking Code for www.warehousespaces.com/ -->
+<script>
+    (function(h,o,t,j,a,r){
+        h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+        h._hjSettings={hjid:1796645,hjsv:6};
+        a=o.getElementsByTagName('head')[0];
+        r=o.createElement('script');r.async=1;
+        r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+        a.appendChild(r);
+    })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+</script>
   </head>
   <body>
 <?
@@ -314,9 +326,9 @@ error_reporting(1);
 		        </div>-->
 		        <nav id="mainmenu" class="mainmenu">
 					<ul>
-						<li class="logo-wrapper"><a href="/"><h3>Warehouse Spaces</h3></a> <!--<h4>Find Warehouse Space For Lease and For Sale</h4>!--></li>
+						<li class="logo-wrapper"><a href="/"><h3>Warehouse<strong>Spaces</strong></h3></a> <!--<h4>Find Warehouse Space For Lease and For Sale</h4>!--></li>
 						<li>
-							<a href="tel:+1-855-989-5894"><h3>(855) 989-5894</h3></a>
+							<a href="tel:+1-800-481-0120"><h3><span style="padding-right:10px;" class="glyphicon glyphicon-earphone"></span>(800) 481-0120</h3></a>
 						</li>
 						<li>
 							<a href="/about.php">ABOUT US</a>
@@ -331,3 +343,34 @@ error_reporting(1);
 				</nav>
 			</div>
 		</div>
+		
+		
+		<?php 
+		///dev/
+
+		if($_SERVER['REQUEST_URI'] != '/dev/coronavirus.php' && $_SERVER['REQUEST_URI'] != '/coronavirus.php') { ?>
+		    <?php if($_SERVER['REQUEST_URI'] == '/dev/') { ?>
+		<div class="">
+		    <?php } else { ?>
+		<div class="" style="background:red;">
+		    <?php } ?>
+		    <?php if($_SERVER['REQUEST_URI'] == '/dev/') { ?>
+		    <div class="container corona-note">
+		        <?php } else { ?>
+		    <div class="container corona-note">
+		       
+
+		        <?php } ?>
+		        
+		        <div class="col-md-12 row-fluid marginxs" style="margin:0px;">
+		        <!--<h2 style="color:#fff;">Covid-19 Update:</h2>-->
+		        <div style="width:100%">
+		        <h2 style="width:90%; float:left; color:#fff;">Given the current Coronavirus pandemic, we are here as a resource should you wish to contact us about any real estate related issues and potential options/solutions. Hopefully this input may help with any business contingency planning you may be undertaking.</h2>
+		        <a style="text-decoration:underline;color:#fff;float:right;text-decoration: none;margin-top: 10px;font-weight: bold;background: #fff;color: #C60001;padding: 10px;" href="https://warehousespaces.com/coronavirus.php">Contact Us</a>
+		        </div>
+		        <!--<h2>**Given the current coronavirus pandemic impacting many businesses, we are here as a resource should you wish to contact us about any real estate related issues and what the potential options/solutions might be.  Hopefully this input may help with any business contingency planning you may be undertaking. <a href="coronavirus.php">Read More</a></h2>-->
+		        </div>
+		    </div>
+		</div>
+		<?php } ?>
+		
