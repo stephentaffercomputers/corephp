@@ -1,4 +1,105 @@
 <?php include 'header.php';z ?>
+    <link
+      href="https://fonts.googleapis.com/css?family=Open+Sans"
+      rel="stylesheet"
+    />
+    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v1.10.1/mapbox-gl.js"></script>
+    <link
+      href="https://api.tiles.mapbox.com/mapbox-gl-js/v1.10.1/mapbox-gl.css"
+      rel="stylesheet"
+    />
+
+<style>
+#map { height:400px; } 
+          .ol-popup {
+    position: absolute;
+    background-color: white;
+    -webkit-filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
+    filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #cccccc;
+    bottom: 12px;
+    left: -50px;
+}
+      .marker {
+    position:absolute;cursor:pointer;width:10px;height:10px;border-radius:10px;background:#0446ff;border:2px solid white;box-shadow:0 0 1px 1px rgba(0,0,0,0.4)      }
+      .mapboxgl-popup {
+        max-width: 200px;
+      }
+      .mapboxgl-popup-content {
+        text-align: center;
+        font-family: 'Open Sans', sans-serif;
+      }
+      
+          .ol-popup {
+    position: absolute;
+    background-color: white;
+    -webkit-filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
+    filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #cccccc;
+    bottom: 12px;
+    left: -50px;
+}
+.ol-popup:after, .ol-popup:before {
+    top: 100%;
+    border: solid transparent;
+    content: " ";
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+}
+.ol-popup:after {
+    border-top-color: white;
+    border-width: 10px;
+    left: 48px;
+    margin-left: -10px;
+}
+.ol-popup:before {
+    border-top-color: #cccccc;
+    border-width: 11px;
+    left: 48px;
+    margin-left: -11px;
+}
+.ol-popup-content {
+    position: relative;
+    min-width: 200px;
+    min-height: 150px;
+    height: 100%;
+    max-height: 250px;
+    padding:2px;
+    white-space: normal;        
+    background-color: #f7f7f9;
+    border: 1px solid #e1e1e8;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+.ol-popup-content p{
+    font-size: 14px;
+    padding: 2px 4px;
+    color: #222;
+    margin-bottom: 15px;
+}
+.ol-popup-closer {
+    position: absolute;
+    top: -4px;
+    right: 2px;
+    font-size: 100%;
+    color: #0088cc;
+    text-decoration: none;
+}
+a.ol-popup-closer:hover{
+    color: #005580;
+    text-decoration: underline;
+}
+.ol-popup-closer:after {
+    content: "✖";
+}
+
+</style>
 <link rel="stylesheet" href="https://searchcommercialspace.com/js/leaflet/leaflet.css" />
 <!--[if lte IE 8]>
 <link rel="stylesheet" href="https://searchcommercialspace.com/leaflet/leaflet.ie.css" />
@@ -14,12 +115,28 @@
      img[src*="gstatic.com/"], img[src*="googleapis.com/"] {
     max-width: none;
      }
+
+.gm-style .gm-style-iw-t { bottom: 10px !important;}
+.gm-ui-hover-effect {
+    display: none !important;
+}.gm-style .gm-style-iw-c {padding:0px !important;}
+.gm-style .gm-style-iw-c:hover { background-color:#0088cc;}
+.gm-style .gm-style-iw-t:hover::after {
+    background: linear-gradient(45deg,
+rgba(0,136,204,1) 50%,rgba(255,255,255,0) 51%,rgba(255,255,255,0) 100%); }
+.gm-style .gm-style-iw-c:hover a {color:#fff;text-decoration:none;}
+.gm-style .gm-style-iw-c a{text-align:center;padding:2px 6px 6px 6px; text-decoration:none; text-transform:uppercase; display:block; min-width:36px;color:#0f3647;  line-height:1em;}
+.gm-style .gm-style-iw-c a h5{
+    margin: 4px 0px 0px 0px;
+    font-weight: bold;}
 </style>
 <script src="https://maps.google.com/maps/api/js?v=3.3&amp;libraries=geometry&amp;sensor=false&amp;key=AIzaSyDRydNbYJvaAwXP7gZeUx8v2aV9TSZ5XAo" type="text/javascript"></script>
 <?php
 $prop_type_array = array("office" => "office-space", "industrial" => "warehouse-space", "medical" => "medical-space", "retail" => "retail-space");
   
 $markers_script = ""; //variable to store map markers
+$mapbox_markers = '';
+
 $popup_script = ""; //variable to store popup infowindows in map
 $table_rows = ""; //variable to store result rows
 $q = ''; //URL query string
@@ -174,7 +291,7 @@ if ($_GET['PropertyType']) {
               </div>
               <div class="price">';
               
-        if ($row['RentalRateMin'] == "Negotiable") $sidebar_content .=  "Negotiable";
+        if ($row['RentalRateMin'] == "Negotiable") $sidebar_content .=  "Make an Offer";
         else $sidebar_content .=  '$'.number_format($row['MonthlyRate']).' /mo';
 
         if ($row['RentalRateMin'] != "Negotiable") $sidebar_content .=  '<br /><span style="font-weight: normal; font-size: 14px;">($'.number_format($row['MonthlyRate'] / ereg_replace("[^-0-9\.]", "", $row['SpaceAvailable']), 2).'/sf./month)</span>';
@@ -202,6 +319,25 @@ if ($_GET['PropertyType']) {
 
       while ($row = mysqli_fetch_array($result)) {        
           if ($row["Latitude"] != "") {
+/*<a href=\"/united-states/".$row['StateProvCode']."/".str_replace(" ", "-", $row['CityName'])."/".$prop_type_array[strtolower($row['PropertyType'])]."/".$row['ListingID']."\">*/
+
+
+            $link_address = '<a href="/united-states/'.$row['StateProvCode']."/".$row['CityName']."/".$prop_type_array[strtolower($row['PropertyType'])]."/".$row['ListingID'].'">'.str_replace(array('\'', '"'), '', $row['StreetAddress']).'</a>'; 
+                $markers_script_new .=  "{lat: ".$row['Latitude'].", lng: ".$row['Longitude']. "},";
+                $markers_script_new_map .= "[".$row['Longitude'].", ".$row['Latitude'].", 'https://warehousespaces.com/images/blue-new.png','<div><div class=\"row-fluid\"><a href=\"/united-states/".$row['StateProvCode']."/".$row['CityName']."/".$row['ListingID']."\">".preg_replace($patterns, '', $row['StreetAddress'].", ".$row['CityName'])."</a><br />".$row['SpaceAvailableTotal']." sq. ft.</div></div>'],";
+                $mapbox_markers .= "{
+            'type': 'Feature',
+            'geometry': {
+              'type': 'Point',
+              'coordinates': [".$row['Longitude'].", ".$row['Latitude']."]
+            },
+            'properties': {
+              'title': '',
+              'description': '".$link_address."'
+            }
+          },
+";
+              
           $markers_script .= 'var myLatlng = new google.maps.LatLng('.$row["Latitude"].', '.$row["Longitude"].'); var marker = new google.maps.Marker({position: myLatlng, title: "'.preg_replace($patterns, '', $row['StreetAddress'].' <Br> '.$row['CityName'].' <br> Propertytype: '.$row['PropertyType'].' | '.$row['PropertySubType']).'", map: map });'.
         " var contentTxt = '<div><a href=\"/united-states/".$row['StateProvCode']."/".str_replace(" ", "-", $row['CityName'])."/".$prop_type_array[strtolower($row['PropertyType'])]."/".$row['ListingID']."\">".
         "<div class=\"row-fluid\">".
@@ -235,7 +371,7 @@ if ($_GET['PropertyType']) {
       $cityname = $onerow['CityName'];
     
     $firstLatLng = 'new google.maps.LatLng('.(trim($onerow["Latitude"] != "") ? $onerow["Latitude"] : 33.800903676512).','.(trim($onerow["Longitude"] !="") ? $onerow["Longitude"] : -118.27401280403).')';
-    
+    $firstLatLngNew = "[".$onerow['Longitude'].", ".$onerow['Latitude']."]";
     //close the resultset
       $result->close();
 
@@ -244,6 +380,7 @@ if ($_GET['PropertyType']) {
     {
       $firstLatLng = 'new google.maps.LatLng(33.800903676512,-118.27401280403)';
         $sidebar_content .= "<strong>Your search did not match any properties.</strong><br /><br /><a href=\"https://searchcommercialspace.com\">Start a New Search</a>"; 
+        $firstLatLngNew = "[33.800903676512, -118.27401280403]";
     }
   }
 
@@ -288,7 +425,7 @@ else
       if ($rec_count > 0)
       {
 
-        $sql = $search_sql_stmt." LIMIT 0, 3";
+        $sql = $search_sql_stmt." LIMIT 0, 5";
 
         $result_page = $mysqli->query($sql);
 
@@ -316,7 +453,7 @@ else
               </div>
               <div class="price">';
               
-          if ($row['RentalRateMin'] == "Negotiable") $sidebar_content .=  "Negotiable";
+          if ($row['RentalRateMin'] == "Negotiable") $sidebar_content .=  "Make an Offer";
           else $sidebar_content .=  '$'.number_format($row['MonthlyRate']).' /mo';
 
           if ($row['RentalRateMin'] != "Negotiable") $sidebar_content .=  '<br /><span style="font-weight: normal; font-size: 14px;">($'.number_format($row['MonthlyRate'] / ereg_replace("[^-0-9\.]", "", $row['SpaceAvailable']), 2).'/sf/month)</span>';
@@ -343,26 +480,41 @@ else
 
         while ($row = mysqli_fetch_array($result)) {        
             if ($row["Latitude"] != "") {
-            $markers_script .= 'var myLatlng = new google.maps.LatLng('.$row["Latitude"].', '.$row["Longitude"].'); var marker = new google.maps.Marker({position: myLatlng, title: "'.preg_replace($patterns, '', $row['StreetAddress'].' <Br> '.$row['CityName'].' <br> Propertytype: '.$row['PropertyType'].' | '.$row['PropertySubType']).'", map: map });'.
-        " var contentTxt = '<div><a href=\"/united-states/".$row['StateProvCode']."/".str_replace(" ", "-", $row['CityName'])."/".$url."/".$row['ListingID']."\">".
-        "<div class=\"row-fluid\">".
-        "<div class=\"span3\" style=\"float: left;\"><img class=\"img-polaroid\" src=\"".$row['PhotoURL']."\" width=\"60\" /></div>".
-        "<div class=\"span7 offset1\" style=\"float: left; margin-left: 5px;\">".$row['SpaceAvailableTotal']." sq. ft.  </h5><h5>".$row['RentalRateMin']."</div>".
-        "</div>".
-        "<div class=\"row-fluid\" style=\"float: right;\">".preg_replace($patterns, '', $row['StreetAddress'].", ".$row['CityName'])."</div>".
-        "</div></a></div>';".
+				$totalspace = explode(" ",$row['SpaceAvailableTotal']);
+            $link_address = '<a href="/united-states/'.$row['StateProvCode']."/".$row['CityName']."/".$prop_type_array[strtolower($row['PropertyType'])]."/".$row['ListingID'].'">'.str_replace(array('\'', '"'), '', $row['StreetAddress']).'</a>'; 
+                $markers_script_new .=  "{lat: ".$row['Latitude'].", lng: ".$row['Longitude']. "},";
+                $markers_script_new_map .= "[".$row['Longitude'].", ".$row['Latitude'].", 'https://warehousespaces.com/images/blue-new.png','<div><div class=\"row-fluid\"><a href=\"/dev/united-states/".$row['StateProvCode']."/".$row['CityName']."/".$row['ListingID']."\">".preg_replace($patterns, '', $row['StreetAddress'].", ".$row['CityName'])."</a><br />".$row['SpaceAvailableTotal']." sq. ft.</div></div>'],";
+                $mapbox_markers .= "{
+            'type': 'Feature',
+            'geometry': {
+              'type': 'Point',
+              'coordinates': [".$row['Longitude'].", ".$row['Latitude']."]
+            },
+            'properties': {
+              'title': '',
+              'description': '".$link_address."'
+            }
+          },
+";				
+            $markers_script .= 'var myLatlng = new google.maps.LatLng('.$row["Latitude"].', '.$row["Longitude"].'); var marker = new google.maps.Marker({position: myLatlng, title: "'.preg_replace($patterns, '', $row['StreetAddress'].' '.$row['CityName'].' Propertytype: '.$row['PropertyType'].' | '.$row['PropertySubType']).'", map: map });'.
+        " var contentTxt = '<a href=\"/united-states/".$row['StateProvCode']."/".str_replace(" ", "-", $row['CityName'])."/".$url."/".$row['ListingID']."\" >".
+	    "<div style=\"text-align:center;\" title=\"".$row['PropertyType']." Space at ".$row['StreetAddress']." ".$row['CityName']." \">".
+		"<h5>".$totalspace[0]."</h5><small>SQFT</small></div>".
+        "</a>';".
         " marker.infoWindow = new google.maps.InfoWindow({
           content: contentTxt
         });".
         " google.maps.event.addListener(marker,'click',function() {
-          infoClose();
+          
           infoList.push(this);
           this.infoWindow.open(map,this);
-        });";
+        });
+		google.maps.event.trigger(marker, 'click');
+		";
           }
       }
 
-      //////////////////////////////////////////////////////
+      //////////////////////////////////////////////////////infoClose();
       // fetch a single row to set                        //
       // 1. Center Lat Lng for map                        //
       // 2. statecode variable to be used in page         //
@@ -376,7 +528,7 @@ else
         $cityname = $onerow['CityName'];
     
       $firstLatLng = 'new google.maps.LatLng('.(trim($onerow["Latitude"] != "") ? $onerow["Latitude"] : 33.800903676512).','.(trim($onerow["Longitude"] !="") ? $onerow["Longitude"] : -118.27401280403).')';
-    
+    $firstLatLngNew = "[".$onerow['Longitude'].", ".$onerow['Latitude']."]";
       //close the resultset
         $result->close();
 $state_code = array_search(trim(str_replace("-", " ", $statecode)), $states); // $key = 2;        
@@ -473,7 +625,8 @@ $city_count = $city_result->num_rows;
 if ($city_count < 1)
 {
 ?>
-            <div class="row-fluid" id="map-canvas"></div>
+            <!--<div class="row-fluid" id="map-canvas"></div>-->
+            <div id="map" class="row-fluid map"></div>
 <?php } ?>
             <div class="clear"></div>
 <!--
@@ -482,9 +635,72 @@ if ($city_count < 1)
 // Generate the filter form used to fliter the result set                       //
 //////////////////////////////////////////////////////////////////////////////////
 --> 
+
+	    
+		<div class="section section-white homsec newhomesection">
+	      <div class="container">
+	        <h1>What our customers are saying about us</h1>
+	        <div class="col-md-12 row marginxs">
+	            <div class="col-md-3">
+	                <img class="starimage"  src="/images/stars-5.png"><br />
+	                <h3>Highly Recommended</h3>
+	                <p>Worked with their team and they connected me with a expert that asisted us find a great space. Would recommend them!</p>
+	                <h6>Steve McQuinn</h6>
+	            </div>
+	            <div class="col-md-3">
+	                <img class="starimage"  src="/images/stars-5.png"><br />
+	                <h3>Wonderful Experience</h3>
+	                <p>They offered a great service, like no other that I have experienced. Their staff is very friendly and always willing to help. Thank you.</p>
+	                <h6>Richard Williams</h6>
+	            </div>
+	            <div class="col-md-3">
+	                <img class="starimage"  src="/images/stars-5.png"><br />
+	                <h3>Saved Us Money</h3>
+	                <p>Worked with them and they helped us find a local expert that not only saved us valuable time and money. Great help.</p>
+	                <h6>Roy Silverstein</h6>
+	            </div>
+	            <div class="col-md-3">
+	                <img class="starimage" src="/images/stars-5.png"><br />
+	                <h3>Outstanding</h3>
+	                <p>Expert assistance find using us a great location. Showed us serveral options and found a great place, at the right price.</p>
+	                <h6>Michael Halper</h6>
+	            </div>
+	            
+	            
+	            <div class="col-md-3">
+	                <img class="starimage" src="/images/stars-5.png"><br />
+	                <h3>Great Service</h3>
+	                <p>Under a short timeline they emailed options, arranged tours and helped in negotiotions. Excellent service, I highly recommend.</p>
+	                <h6>Mark Halper</h6>
+	            </div>	            
+
+	            <div class="col-md-3">
+	                <img class="starimage" src="/images/stars-5.png"><br />
+	                <h3>Excellent Service</h3>
+	                <p>They made finding a new space easy. They were determind to finiding me a space that met my needs and budget. Great job!</p>
+	                <h6>Richard Wattsr</h6>
+	            </div>	            
+	            <div class="col-md-3">
+	                <img class="starimage" src="/images/stars-5.png"><br />
+	                <h3>Very Helpful</h3>
+	                <p>I can't imagine finding space without your assistance. Helped us find a very nice space. Will use your service in the again.</p>
+	                <h6>Mark Stein</h6>
+	            </div>	            
+	        
+	            <div class="col-md-3">
+	                <img class="starimage" src="/images/stars-5.png"><br />
+	                <h3>Exteremly Helpful</h3>
+	                <p>They were exteremly helpful throughout our search. Always came up-with new options. Really recommend them!</p>
+	                <h6>Michael Stember</h6>
+	            </div>	            
+	        
+	        </div>
+
+	      </div>
+	    </div>	    
             <div class="row-fluid">
               <form class="form-horizontal" role="form" id="filter-form" method="get" action="<? echo $_SERVER['REQUEST_URI']; ?>">
-                <center><strong>Filter Results by: </strong></center><br />
+                <!--<center><strong>Filter Results by: </strong></center><br />-->
                 <div class="form-group col-xs-12 col-sm-4 col-lg-4 custom_width">
                       <label for="sq_ft" class="col-xs-4 control-label" style="width:111px;"><b>Size Range:</b></label>
                       <div class="col-xs-7" style="padding-left:0px;">
@@ -924,7 +1140,7 @@ $("#submit-contact-form").click(function () {
       function initialize() {
         var mapOptions = {
           center: <?=$firstLatLng?>,
-          zoom: 10,
+          zoom: 12,
           mapTypeId: google.maps.MapTypeId.ROADMAP,
      
         };
@@ -1003,7 +1219,7 @@ $("#submit-contact-form").click(function () {
 $(document).ready(function(){
 
     //initialize google map on document load;
-    initialize();
+    //initialize();
     
     // bind the button click in filter form to  cal lthe filter_results function
     
@@ -1198,6 +1414,48 @@ function filter_results(){
       
 }
 </script>
+
+    <script>
+      mapboxgl.accessToken = 'pk.eyJ1IjoidGFmZmVyY29tcHV0ZXJzIiwiYSI6ImNrYWN2dXpocDBhc3MyeHByb29nc2YybjIifQ.cQO_ys5wOJFh04l58RPnHg';
+
+      var geojson = {
+        'type': 'FeatureCollection',
+        'features': [<?=$mapbox_markers?>]
+      };
+
+      var map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/light-v10',
+        center: <?=$firstLatLngNew;?>,
+        zoom: 12
+      });
+
+      // add markers to map
+      geojson.features.forEach(function(marker) {
+        // create a HTML element for each feature
+        var el = document.createElement('div');
+        el.className = 'marker';
+
+        // make a marker for each feature and add it to the map
+        new mapboxgl.Marker(el)
+          .setLngLat(marker.geometry.coordinates)
+          .setPopup(
+            new mapboxgl.Popup({ offset: 25 }) // add popups
+              .setHTML(
+                '<h3>' +
+                  marker.properties.title +
+                  '</h3><p>' +
+                  marker.properties.description +
+                  '</p>'
+              )
+          )
+          .addTo(map);
+      });
+// Add zoom and rotation controls to the map.
+map.addControl(new mapboxgl.NavigationControl());
+
+    </script>
+
 <?  
 $mysqli->close();
 include 'footer.php'; 
