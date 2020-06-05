@@ -1,5 +1,105 @@
 <?php include 'header.php'; ?>
-<link rel="stylesheet" href="https://leaseofficespace.net/js/leaflet/leaflet.css" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Open+Sans"
+      rel="stylesheet"
+    />
+    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v1.10.1/mapbox-gl.js"></script>
+    <link
+      href="https://api.tiles.mapbox.com/mapbox-gl-js/v1.10.1/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://leaseofficespace.net/js/leaflet/leaflet.css" />
+<style>
+#map { height:400px; } 
+          .ol-popup {
+    position: absolute;
+    background-color: white;
+    -webkit-filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
+    filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #cccccc;
+    bottom: 12px;
+    left: -50px;
+}
+      .marker {
+    position:absolute;cursor:pointer;width:10px;height:10px;border-radius:10px;background:#0446ff;border:2px solid white;box-shadow:0 0 1px 1px rgba(0,0,0,0.4)      }
+      .mapboxgl-popup {
+        max-width: 200px;
+      }
+      .mapboxgl-popup-content {
+        text-align: center;
+        font-family: 'Open Sans', sans-serif;
+      }
+      
+          .ol-popup {
+    position: absolute;
+    background-color: white;
+    -webkit-filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
+    filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #cccccc;
+    bottom: 12px;
+    left: -50px;
+}
+.ol-popup:after, .ol-popup:before {
+    top: 100%;
+    border: solid transparent;
+    content: " ";
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+}
+.ol-popup:after {
+    border-top-color: white;
+    border-width: 10px;
+    left: 48px;
+    margin-left: -10px;
+}
+.ol-popup:before {
+    border-top-color: #cccccc;
+    border-width: 11px;
+    left: 48px;
+    margin-left: -11px;
+}
+.ol-popup-content {
+    position: relative;
+    min-width: 200px;
+    min-height: 150px;
+    height: 100%;
+    max-height: 250px;
+    padding:2px;
+    white-space: normal;        
+    background-color: #f7f7f9;
+    border: 1px solid #e1e1e8;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+.ol-popup-content p{
+    font-size: 14px;
+    padding: 2px 4px;
+    color: #222;
+    margin-bottom: 15px;
+}
+.ol-popup-closer {
+    position: absolute;
+    top: -4px;
+    right: 2px;
+    font-size: 100%;
+    color: #0088cc;
+    text-decoration: none;
+}
+a.ol-popup-closer:hover{
+    color: #005580;
+    text-decoration: underline;
+}
+.ol-popup-closer:after {
+    content: "✖";
+}
+
+</style>    
 <!--[if lte IE 8]>
 <link rel="stylesheet" href="https://leaseofficespace.net/leaflet/leaflet.ie.css" />
 <![endif]-->
@@ -19,6 +119,7 @@
 <?php
 $prop_type_array = array("office" => "office-space", "industrial" => "warehouse-space", "medical" => "medical-space", "retail" => "retail-space");
 $markers_script = ""; //variable to store map markers
+$mapbox_markers = '';
 $popup_script = ""; //variable to store popup infowindows in map
 $table_rows = ""; //variable to store result rows
 $q = ''; //URL query string
@@ -226,6 +327,19 @@ else $sidebar_content .=  '<br /><span style="font-weight: normal; font-size: 14
 
 		while ($row = mysqli_fetch_array($result)) {        
     		if ($row["Latitude"] != "")	{
+    		                $link_address = '<a href="/offices-for-rent/'.$row['StateProvCode']."/".$row['CityName']."/".$row['ListingID'].'">'.str_replace(array('\'', '"'), '', $row['StreetAddress']).'</a>'; 
+$mapbox_markers .= "{
+            'type': 'Feature',
+            'geometry': {
+              'type': 'Point',
+              'coordinates': [".$row['Longitude'].", ".$row['Latitude']."]
+            },
+            'properties': {
+              'title': '',
+              'description': '".$link_address."'
+            }
+          },
+";    		    
 				$markers_script .= 'var myLatlng = new google.maps.LatLng('.$row["Latitude"].', '.$row["Longitude"].'); var marker = new google.maps.Marker({position: myLatlng, title: "'.preg_replace($patterns, '', $row['StreetAddress'].' <Br> '.$row['CityName'].' <br> Propertytype: '.$row['PropertyType'].' | '.$row['PropertySubType']).'", map: map });'.
 				" var contentTxt = '<div><div class=\"row-fluid\"><a href=\"/offices-for-rent/".$row['StateProvCode']."/".$row['CityName']."/".$row['ListingID']."\">".preg_replace($patterns, '', $row['StreetAddress'].", ".$row['CityName'])."</a><br />".$row['SpaceAvailableTotal']." sq. ft.</div></div>';".
 				" marker.infoWindow = new google.maps.InfoWindow({
@@ -249,13 +363,14 @@ else $sidebar_content .=  '<br /><span style="font-weight: normal; font-size: 14
 	    $result->data_seek(0);
 
 	    $firstLatLng = "";
-
+$firstLatLngNew = '';
 	    while (!$firstLatLng && $onerow = $result->fetch_assoc())
 	    {
     		$statecode = $onerow['StateProvCode'];
     		$cityname = $onerow['CityName'];
     
 			if ($onerow["Latitude"] != "" && $onerow["Longitude"] != "") $firstLatLng = 'new google.maps.LatLng('.$onerow["Latitude"].','.$onerow["Longitude"].')';
+			$firstLatLngNew = "[".$onerow['Longitude'].", ".$onerow['Latitude']."]";
 		}
 
 		if (!firstLatLng) $firstLatLng = 'new google.maps.LatLng(33.800903676512,-118.27401280403)';
@@ -265,7 +380,9 @@ else $sidebar_content .=  '<br /><span style="font-weight: normal; font-size: 14
 	}
 	else
 	{
+	    $firstLatLngNew = "[-118.27401280403, 33.800903676512]";
 		$firstLatLng = 'new google.maps.LatLng(33.800903676512,-118.27401280403)';
+		$firstLatLngNew = "[".$onerow['Longitude'].", ".$onerow['Latitude']."]";
 		//$sidebar_content .= "<strong>Your search did not match any properties.</strong><br /><br /><a href=\"https://leaseofficespace.net\">Start a New Search</a>"; 
 		$sidebar_content .= "<strong>We are refreshing inventory in ".$_GET["q"].".</strong><br /><br /><a href=\"https://leaseofficespace.net\">Start a New Search</a>"; 
 		$cityname = $q[0];
@@ -329,7 +446,8 @@ $city_count = $city_result->num_rows;
 if ($city_count < 1)
 {
 ?>
-						<div class="row-fluid" id="map-canvas"></div>
+						<!--<div class="row-fluid" id="map-canvas"></div>-->
+						<div id="map" class="row-fluid map"></div>
 <?php } ?>
 						<div class="clear"></div>
 <!--
@@ -338,9 +456,71 @@ if ($city_count < 1)
 // Generate the filter form used to fliter the result set                       //
 //////////////////////////////////////////////////////////////////////////////////
 -->	
+	    
+		<div class="section section-white homsec newhomesection">
+	      <div class="container">
+	        <h1>What our customers are saying about us</h1>
+	        <div class="col-md-12 row marginxs">
+	            <div class="col-md-3">
+	                <img class="starimage"  src="/images/stars-5.png"><br />
+	                <h3>Highly Recommended</h3>
+	                <p>Worked with their team and they connected me with a expert that asisted us find a great space. Would recommend them!</p>
+	                <h6>Steve McQuinn</h6>
+	            </div>
+	            <div class="col-md-3">
+	                <img class="starimage"  src="/images/stars-5.png"><br />
+	                <h3>Wonderful Experience</h3>
+	                <p>They offered a great service, like no other that I have experienced. Their staff is very friendly and always willing to help. Thank you.</p>
+	                <h6>Richard Williams</h6>
+	            </div>
+	            <div class="col-md-3">
+	                <img class="starimage"  src="/images/stars-5.png"><br />
+	                <h3>Saved Us Money</h3>
+	                <p>Worked with them and they helped us find a local expert that not only saved us valuable time and money. Great help.</p>
+	                <h6>Roy Silverstein</h6>
+	            </div>
+	            <div class="col-md-3">
+	                <img class="starimage" src="/images/stars-5.png"><br />
+	                <h3>Outstanding</h3>
+	                <p>Expert assistance find using us a great location. Showed us serveral options and found a great place, at the right price.</p>
+	                <h6>Michael Halper</h6>
+	            </div>
+	            
+	            
+	            <div class="col-md-3">
+	                <img class="starimage" src="/images/stars-5.png"><br />
+	                <h3>Great Service</h3>
+	                <p>Under a short timeline they emailed options, arranged tours and helped in negotiotions. Excellent service, I highly recommend.</p>
+	                <h6>Mark Halper</h6>
+	            </div>	            
+
+	            <div class="col-md-3">
+	                <img class="starimage" src="/images/stars-5.png"><br />
+	                <h3>Excellent Service</h3>
+	                <p>They made finding a new space easy. They were determind to finiding me a space that met my needs and budget. Great job!</p>
+	                <h6>Richard Wattsr</h6>
+	            </div>	            
+	            <div class="col-md-3">
+	                <img class="starimage" src="/images/stars-5.png"><br />
+	                <h3>Very Helpful</h3>
+	                <p>I can't imagine finding space without your assistance. Helped us find a very nice space. Will use your service in the again.</p>
+	                <h6>Mark Stein</h6>
+	            </div>	            
+	        
+	            <div class="col-md-3">
+	                <img class="starimage" src="/images/stars-5.png"><br />
+	                <h3>Exteremly Helpful</h3>
+	                <p>They were exteremly helpful throughout our search. Always came up-with new options. Really recommend them!</p>
+	                <h6>Michael Stember</h6>
+	            </div>	            
+	        
+	        </div>
+
+	      </div>
+	    </div>	    
 						<div class="row-fluid">
 							<form class="form-horizontal" role="form" id="filter-form" method="get" action="<? echo $_SERVER['REQUEST_URI']; ?>">
-								<center><strong>Filter Results by: </strong></center><br />
+								<!--<center><strong>Filter Results by: </strong></center><br />-->
 								<div class="form-group col-xs-12 col-sm-4 col-lg-4 custom_width">
 		        				 	<label for="sq_ft" class="col-xs-4 control-label" style="width:111px;"><b>Size Range:</b></label>
 		        				 	<div class="col-xs-7" style="padding-left:0px;">
@@ -949,6 +1129,46 @@ function filter_results(){
       
 }
 </script>
+    <script>
+      mapboxgl.accessToken = 'pk.eyJ1IjoidGFmZmVyY29tcHV0ZXJzIiwiYSI6ImNrYWN2dXpocDBhc3MyeHByb29nc2YybjIifQ.cQO_ys5wOJFh04l58RPnHg';
+
+      var geojson = {
+        'type': 'FeatureCollection',
+        'features': [<?=$mapbox_markers?>]
+      };
+
+      var map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/light-v10',
+        center: <?=$firstLatLngNew;?>,
+        zoom: 12
+      });
+
+      // add markers to map
+      geojson.features.forEach(function(marker) {
+        // create a HTML element for each feature
+        var el = document.createElement('div');
+        el.className = 'marker';
+
+        // make a marker for each feature and add it to the map
+        new mapboxgl.Marker(el)
+          .setLngLat(marker.geometry.coordinates)
+          .setPopup(
+            new mapboxgl.Popup({ offset: 25 }) // add popups
+              .setHTML(
+                '<h3>' +
+                  marker.properties.title +
+                  '</h3><p>' +
+                  marker.properties.description +
+                  '</p>'
+              )
+          )
+          .addTo(map);
+      });
+// Add zoom and rotation controls to the map.
+map.addControl(new mapboxgl.NavigationControl());
+
+    </script>
   <? 
       	$mysqli->close();
   include 'footer.php'; ?>

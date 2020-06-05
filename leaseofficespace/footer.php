@@ -32,5 +32,82 @@
 		    	</div>
 		    </div>
 	    </div>
+	    
+<script type="text/javascript">
+    function randomItem(){
+    console.log('called random');
+    for (var i = 0; i < 4; i++){
+        var length = $(".homsec .marginxs > div.col-md-3:not(:visible)").length;
+        var random = Math.floor(Math.random() * length);
+        $(".homsec .marginxs > div.col-md-3:not(:visible)").eq(random).show();
+    }
+}
+
+	$(document).ready(function() {
+	        console.log('test');
+
+	    $(".homsec .marginxs > div.col-md-3").hide();
+        randomItem();
+	});
+
+</script>	    
+<script>
+var slideIndex = 1;
+showSlides(slideIndex);
+
+function plusSlides(n) {
+  showSlides(slideIndex += n);
+}
+
+function currentSlide(n) {
+  showSlides(slideIndex = n);
+}
+
+function showSlides(n) {
+  var i;
+  var slides = document.getElementsByClassName("mySlides");
+  var dots = document.getElementsByClassName("dot");
+  if (n > slides.length) {slideIndex = 1}    
+  if (n < 1) {slideIndex = slides.length}
+  for (i = 0; i < slides.length; i++) {
+      slides[i].style.display = "none";  
+  }
+  for (i = 0; i < dots.length; i++) {
+      dots[i].className = dots[i].className.replace(" active", "");
+  }
+  slides[slideIndex-1].style.display = "block";  
+  dots[slideIndex-1].className += " active";
+}
+
+
+var slideIndexnew = 1;
+showSlidesnew(slideIndexnew);
+
+function plusSlidesnew(n) {
+  showSlidesnew(slideIndexnew += n);
+}
+
+function currentSlidenew(n) {
+  showSlidesnew(slideIndexnew = n);
+}
+
+function showSlidesnew(n) {
+  var i;
+  var slides = document.getElementsByClassName("mySlidesnew");
+  var dots = document.getElementsByClassName("dot");
+  if (n > slides.length) {slideIndexnew = 1}    
+  if (n < 1) {slideIndexnew = slides.length}
+  for (i = 0; i < slides.length; i++) {
+      slides[i].style.display = "none";  
+  }
+  for (i = 0; i < dots.length; i++) {
+      dots[i].className = dots[i].className.replace(" active", "");
+  }
+  slides[slideIndexnew-1].style.display = "block";  
+  dots[slideIndexnew-1].className += " active";
+}
+
+</script>
+
     </body>
 </html>	    		    
